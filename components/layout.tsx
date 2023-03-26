@@ -3,16 +3,23 @@ import { useRouter } from "next/router"
 import { ReactNode, useState } from "react"
 import { HomeSVG, ExploreSVG, NotificationSVG, MsgsSVG, BookmarksSVG, ProfileSVG, MoreSVG, DangerSVG, TweetIcon } from "./svgElemets"
 
-
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <div className=" fixed  top-0 left-0 h-screen w-screen overflow-y-auto">
-      <main className="w-fit mx-auto flex h-full ">
+    <div className="flex relative h-screen w-screen overflow-y-auto">
+      <div className=" flex h-full w-auto mx-auto xl:mx-0 xl:w-full " 
+        >
+        <div className="hidden sm:block sticky top-0 left-0 side-header">
+          <SideNavbar />
+        </div>
         <TopNavBar />
-        <SideNavbar />
-        <main className="pt-8 sm:pt-0">{children}</main>
+        <main 
+          className="flex w-screen mx-auto  sm:w-[598px] sm:mx-0  pt-8 sm:pt-0 main-content"
+          >
+          {children}
+          
+        </main>
         <BottomNavBar />
-      </main>
+      </div>
     </div>
   )
 }
@@ -33,44 +40,44 @@ function SideNavbar() {
   const router = useRouter();
 
   return (
-    <div className="hidden sm:flex flex-col px-2 md:px-4 py-2  sticky top-0 h-full justify-between  sm:w-[68px] md:w-60 ">
+    <header className="ml-auto hidden sm:flex flex-col px-2 xl:px-4 py-2   h-full justify-between  sm:w-[68px] xl:w-64 ">
       <div className="flex flex-col">
         <Link href={'/home'} className="p-2 mx-1 hover:bg-blue-50 w-fit rounded-full">
           <TweetIcon fill={'#1D9BF0'} />
         </Link>
-        <ul className="my-3 px-1 flex flex-col space-y-2">
-          <Link href='/home' className="flex group text-base items-center hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+        <ul className="my-4 px-1 flex flex-col space-y-4">
+          <Link href='/home' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <HomeSVG fill='none' strokeWidth="1.75" />
-            <span className="px-3 hidden lg:block" >Home</span>
+            <span className="px-3 hidden xl:block" >Home</span>
           </Link>
-          <Link href='/#' className="flex group text-base items-center hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+          <Link href='/#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <ExploreSVG fill='none' strokeWidth="1.75" />
-            <span className="px-3 hidden lg:block" >Explore</span>
+            <span className="px-3 hidden xl:block" >Explore</span>
           </Link>
-          <Link href='/#' className="flex group text-base items-center hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+          <Link href='/#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <NotificationSVG fill='none' strokeWidth="1.75" />
-            <span className="px-3 hidden lg:block" >Notifications</span>
+            <span className="px-3 hidden xl:block" >Notifications</span>
           </Link>
-          <Link href='/#' className="flex group text-base items-center hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+          <Link href='/#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <MsgsSVG fill='none' strokeWidth="1.75" />
-            <span className="px-3 hidden lg:block" >Messages</span>
+            <span className="px-3 hidden xl:block" >Messages</span>
           </Link>
-          <Link href='/#' className="flex group text-base items-center hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+          <Link href='/#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <BookmarksSVG fill='none' strokeWidth="1.75" />
-            <span className="px-3 hidden lg:block" >Bookmarks</span>
+            <span className="px-3 hidden xl:block" >Bookmarks</span>
           </Link>
-          <Link href='/#' className="flex group text-base items-center hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+          <Link href='/#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <ProfileSVG fill='none' strokeWidth="1.75" />
-            <span className="px-3 hidden lg:block">Profile</span>
+            <span className="px-3 hidden xl:block">Profile</span>
           </Link>
-          <Link href='/#' className="flex group text-base items-center hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+          <Link href='/#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <MoreSVG fill='none' strokeWidth="1.75" />
-            <span className="px-3 hidden lg:block" >More</span>
+            <span className="px-3 hidden xl:block" >More</span>
           </Link>
         </ul>
-        <Link className="lg:flex  items-center py-2.5 px-3 w-fit rounded-full font-medium  text-white   bg-[#1D9BF0] lg:w-full" href="?compose=tweet" as="/compose/tweet">
-          <span className="hidden w-full lg:block lg:px-6 text-center">Tweet</span>
-          <svg viewBox="0 0 24 24" aria-hidden="true" fill="white" className="block lg:hidden w-6 h-6  mx-auto">
+        <Link className="xl:flex  items-center py-3 px-3 w-fit rounded-full font-medium  text-white   bg-[#1D9BF0] xl:w-full" href="?compose=tweet" as="/compose/tweet">
+          <span className="hidden w-full xl:block xl:px-6 text-center">Tweet</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="white" className="block xl:hidden w-6 h-6  mx-auto">
             <path d="M23 3c-6.62-.1-10.38 2.421-13.05 6.03C7.29 12.61 6 17.331 6 22h2c0-1.007.07-2.012.19-3H12c4.1 0 7.48-3.082 7.94-7.054C22.79 10.147 23.17 6.359 23 3zm-7 8h-1.5v2H16c.63-.016 1.2-.08 1.72-.188C16.95 15.24 14.68 17 12 17H8.55c.57-2.512 1.57-4.851 3-6.78 2.16-2.912 5.29-4.911 9.45-5.187C20.95 8.079 19.9 11 16 11zM4 9V6H1V4h3V1h2v3h3v2H6v3H4z">
             </path>
           </svg>
@@ -78,27 +85,27 @@ function SideNavbar() {
       </div>
 
       <div className="flex flex-col px-1 space-y-2">
-        <button className="flex group text-base items-center hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+        <button className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
           </svg>
 
-          <span className="px-3 hidden lg:block" >Dark Mode</span>
+          <span className="px-3 hidden xl:block" >Dark Mode</span>
         </button>
-        <button className="flex group text-base items-center hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+        <button className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
           </svg>
-          <span className="px-3 hidden lg:block" >Logout</span>
+          <span className="px-3 hidden xl:block" >Logout</span>
         </button>
       </div>
-    </div>
+    </header>
   )
 }
 function BottomNavBar() {
   return (
     <>
-      <ul className="absolute flex border-t shadow justify-between  w-full sm:hidden bottom-0 left-0  h-12 ">
+      <ul className="fixed flex border-t shadow justify-between  w-full sm:hidden bottom-0 left-0  h-12 ">
         <Link href='/home' className="flex place-content-center  group text-base items-center hover:bg-gray-200 w-full  text-gray-900">
           <HomeSVG fill='none' strokeWidth="1.75" />
         </Link>

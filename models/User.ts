@@ -76,3 +76,11 @@ const UserSchema = new mongoose.Schema<IUserStored>({
 
 const User = mongoose.models.User || mongoose.model<IUserStored>("User", UserSchema);
 export default User
+
+/**
+ 
+mongoose.Model<IUserStored, {}, {}, {}, mongoose.Document<unknown, {}, IUserStored> & Omit<IUserStored & Required<{
+    _id: Types.ObjectId;
+}>, never>, any>
+
+ */
