@@ -30,10 +30,6 @@ export interface IUserStored extends IUserCreate{
     num_tweets?:number,
     followers:[Types.ObjectId],
     following:[Types.ObjectId],
-    tweets?:[Types.ObjectId],
-    likes?:[Types.ObjectId],
-    media?:[Types.ObjectId],
-    own_tweets_comments?:[Types.ObjectId],
 }
 export interface IUserSnippet{
     user_name:string,
@@ -50,10 +46,6 @@ export interface IUser  extends IUserSnippet {
     num_followers?:number,
     num_following?:number,
     num_tweets?:number,
-    tweets?:[string],
-    likes?:[string],
-    media?:[string],
-    own_tweets_comments?:[string],
 }
 
 const UserSchema = new mongoose.Schema<IUserStored>({
@@ -67,10 +59,7 @@ const UserSchema = new mongoose.Schema<IUserStored>({
 
     followers:[{type: mongoose.Schema.Types.ObjectId, ref: 'followers'}],
     following:[{type: mongoose.Schema.Types.ObjectId, ref: 'following'}],
-    tweets:[{type: mongoose.Schema.Types.ObjectId, ref: 'tweets'}],
-    likes:[{type: mongoose.Schema.Types.ObjectId, ref: 'tweets_liked'}],
-    own_tweets_comments:[{type: mongoose.Schema.Types.ObjectId, ref: 'own_tweets'}],
-    media:[{type: mongoose.Schema.Types.ObjectId, ref: 'own_tweets'}],
+    
     avatar:{type:String},
 })
 

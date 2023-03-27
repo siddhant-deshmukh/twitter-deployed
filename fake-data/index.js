@@ -1,8 +1,9 @@
 const mongoose = require('mongoose')
 const { create_users, UploadUsers, addFollowersFollowings, create_tweets, ModifyUsers, UploadTweets, UpdateUsers } = require('./functions')
-const {url} = require('./secret')
+const {mongo_url} = require('./secret')
 
-mongoose.connect()
+
+mongoose.connect(mongo_url)
     .then(async () => {
         console.log("Connected to database")
         let users_array = create_users()
@@ -11,7 +12,7 @@ mongoose.connect()
         let res_ = await UploadUsers(users_array)
         let userids = res_.user_ids
         let users = res_.users
-        console.log(userids)
+        // console.log(userids)
         users = addFollowersFollowings(userids, users)
 
         let tweets_array = create_tweets(userids)

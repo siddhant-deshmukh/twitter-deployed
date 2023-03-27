@@ -4,6 +4,8 @@ const { faker } = require('@faker-js/faker')
 const mongoose = require('mongoose')
 const User = require('./User')
 const Tweet = require('./Tweet')
+const Liked = require('./Liked')
+const Retweet = require('./Retweet')
 
 function create_users() {
     const Users_array = []
@@ -30,9 +32,7 @@ function create_users() {
             about: faker.lorem.sentences(2).slice(0, 150),
             followers: [],
             following: [],
-            tweets: [],
-            likes: [],
-
+            
             accounts
         }
         Users_array.push(new_user)
@@ -82,28 +82,12 @@ function create_tweets(userIds) {
 
     for (var i = 0; i < 30; i++) {
 
-        let liked_by = []
-        let retweet_by = []
-        for (let i = 0; i < Math.floor(Math.random() * 12); i++) {
-            let new__ = Math.floor(Math.random() * userIds.length)
-            if (liked_by.findIndex(ele => ele === userIds[new__]) === -1) {
-                liked_by.push(userIds[new__])
-            }
-            new__ = Math.floor(Math.random() * userIds.length)
-            if (retweet_by.findIndex(ele => ele === userIds[new__]) === -1) {
-                retweet_by.push(userIds[new__])
-            }
-        }
-
-
         let new_tweet = {
             text: faker.lorem.sentences(2).slice(0, 150),
             author: userIds[Math.floor(Math.random() * userIds.length)],
-            liked_by,
-            retweet_by,
         }
 
-
+        
         TweetsArray.push(new_tweet)
     }
     return TweetsArray
@@ -125,25 +109,54 @@ async function UploadTweets(tweets_array) {
     return { tweet_ids, tweets }
 }
 function ModifyUsers(tweet_ids, tweets, users) {
+    let userIds = Object.keys(users)
     tweet_ids.forEach((tweet_id) => {
-        let c_user = users[tweets[tweet_id]['author']]
         // console.log(c_user,tweets[tweet_id]['author'])
-        c_user.tweets.push(tweet_id)
-        tweets[tweet_id].liked_by.forEach((user_id) => {
-            users[user_id]['likes'].push(tweet_id)
-        })
-        tweets[tweet_id].retweet_by.forEach((user_id) => {
-            users[user_id]['tweets'].push(tweet_id)
+        
+        
+        let liked_by = []
+        let retweet_by = []
+        for (let i = 0; i < Math.floor(Math.random() * 7); i++) {
+            let new__ = Math.floor(Math.random() * userIds.length)
+            if (liked_by.findIndex(ele => ele === userIds[new__]) === -1) {
+                liked_by.push(userIds[new__])
+                Liked.create({
+                    userId : userIds[new__],
+                    tweetId : tweet_id,
+                })
+            }
+        }
+        for (let i = 0; i < Math.floor(Math.random() * 7); i++) {
+            let new__ = Math.floor(Math.random() * userIds.length)
+            if (retweet_by.findIndex(ele => ele === userIds[new__]) === -1) {
+                retweet_by.push(userIds[new__])
+                Retweet.create({
+                    userId : userIds[new__],
+                    tweetId : tweet_id,
+                })
+            }
+        }
+        tweets[tweet_id].num_likes = liked_by.length
+        tweets[tweet_id].num_retweet = retweet_by.length
+        Tweet.findByIdAndUpdate(tweet_id,tweets[tweet_id])
+            .then((aaa)=>{
+                // console.log(tweet_id, aaa)
+            })
+            .catch((err)=>{
+                // console.log('some err occured',err)
+            })
+            .finally(()=>{
+            // console.log("Do something!!")
         })
     })
-    // console.log('Modify Users',users)
+    console.log('Modify Tweets',tweets)
     return users
 }
 async function UpdateUsers(users) {
     await Promise.all(Object.keys(users).map(async (user_id) => {
         await User.findByIdAndUpdate(user_id,users[user_id])
     }))
-    console.log('Update Users',users)
+    // console.log('Update Users',users)
 }
 module.exports = { UploadUsers, create_users, addFollowersFollowings, create_tweets, ModifyUsers, UploadTweets, UpdateUsers }
 

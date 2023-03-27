@@ -36,10 +36,32 @@ export default function Home() {
     }
   )
   // const TweetFeed = data ? data.concat(...data) : [];
-  const updateTweet = useCallback((pageNum:number,indexNum:number,update:'liked') => {
+  const updateTweet = useCallback((pageNum:number,indexNum:number,what:'liked'|'retweet') => {
     //@ts-ignore
     mutate((data)=>{
-      console.log("data in mutate",data)
+      let new_ = data?.slice()
+      console.log("data in mutate",pageNum , indexNum,pageNum >= 0, indexNum >= 0 , new_, new_[pageNum], new_[pageNum][indexNum])
+
+      if(pageNum >= 0 && indexNum >= 0 && new_ && new_[pageNum] && new_[pageNum][indexNum]){
+        let prev = {...new_[pageNum][indexNum]}
+        if(what ==='liked'){
+          new_[pageNum][indexNum] = {
+            ...new_[pageNum][indexNum], 
+            have_liked:(prev.have_liked)?(false):true, 
+            num_likes:(prev.have_liked || prev.have_liked===undefined)?(prev.num_likes+1):(prev.num_likes-1)
+          }
+          console.log('liked')
+        }
+        if(what ==='retweet'){
+          new_[pageNum][indexNum] = {
+            ...new_[pageNum][indexNum], 
+            have_retweeted:(prev.have_retweeted)?(false):true, 
+            num_retweet:(prev.have_retweeted || prev.have_retweeted===undefined)?(prev.num_retweet+1):(prev.num_retweet-1)
+          }
+        }
+        console.log("data in mutate",new_)
+      }
+      return new_
     })
   }, [mutate])
   useEffect(() => {

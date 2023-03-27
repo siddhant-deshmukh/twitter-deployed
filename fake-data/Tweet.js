@@ -19,11 +19,6 @@ const TweetSchema = new mongoose.Schema({
     num_retweet: { type: Number, default: 0 },
     num_quotes: { type: Number, default: 0 },
   
-    liked_by: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    retweet_by: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    quotes_tweets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tweet" }],
-    comment_tweets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tweet" }],
-  
   })
   
   const Tweet = mongoose.models.Tweet || mongoose.model("Tweet", TweetSchema);

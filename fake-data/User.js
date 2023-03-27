@@ -12,9 +12,6 @@ const UserSchema = new mongoose.Schema({
 
     followers:[{type: mongoose.Schema.Types.ObjectId, ref: 'followers'}],
     following:[{type: mongoose.Schema.Types.ObjectId, ref: 'following'}],
-    tweets:[{type: mongoose.Schema.Types.ObjectId, ref: 'tweets'}],
-    likes:[{type: mongoose.Schema.Types.ObjectId, ref: 'tweets_liked'}],
-    own_tweets_comments:[{type: mongoose.Schema.Types.ObjectId, ref: 'own_tweets'}],
     media:[{type: mongoose.Schema.Types.ObjectId, ref: 'own_tweets'}],
     avatar:{type:String},
 })
