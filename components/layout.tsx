@@ -5,8 +5,8 @@ import { HomeSVG, ExploreSVG, NotificationSVG, MsgsSVG, BookmarksSVG, ProfileSVG
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex relative h-screen w-screen overflow-y-auto">
-      <div className=" flex h-full w-auto mx-auto xl:mx-0 xl:w-full " 
+    <div className="flex relative h-screen w-screen ">
+      <div className=" flex h-full w-auto mx-auto xl:mx-0 xl:w-full overflow-y-auto" 
         >
         <div className="hidden sm:block sticky top-0 left-0 side-header">
           <SideNavbar />
@@ -40,7 +40,7 @@ function SideNavbar() {
   const router = useRouter();
 
   return (
-    <header className="ml-auto hidden sm:flex flex-col px-2 xl:px-4 py-2   h-full justify-between  sm:w-[68px] xl:w-64 ">
+    <header className="ml-auto hidden sm:flex border-r border-r-gray-200 flex-col px-2 xl:px-4 py-2   h-full justify-between  sm:w-[68px] xl:w-64 ">
       <div className="flex flex-col">
         <Link href={'/home'} className="p-2 mx-1 hover:bg-blue-50 w-fit rounded-full">
           <TweetIcon fill={'#1D9BF0'} />
@@ -50,7 +50,7 @@ function SideNavbar() {
             <HomeSVG fill='none' strokeWidth="1.75" />
             <span className="px-3 hidden xl:block" >Home</span>
           </Link>
-          <Link href='/#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+          <Link href='/' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <ExploreSVG fill='none' strokeWidth="1.75" />
             <span className="px-3 hidden xl:block" >Explore</span>
           </Link>

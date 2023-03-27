@@ -17,13 +17,9 @@ export interface ITweetStored extends ITweetCreate{
   
   
   num_views: number,
-  num_comments: number,
   comment_tweets?: [Types.ObjectId],
-  num_quotes: number,
   quotes_tweets?: [Types.ObjectId],
-  num_likes: number,
   liked_by: [Types.ObjectId],
-  num_retweet: number,
   retweet_by?: [Types.ObjectId],
 }
 export interface ITweet {
@@ -70,11 +66,7 @@ const TweetSchema = new mongoose.Schema<ITweetStored>({
  
   time: { type: Date, required: true, default: Date.now() },
   num_views: { type: Number, default: 0 },
-  num_likes: { type: Number, default: 0 },
-  num_comments: { type: Number, default: 0 },
-  num_retweet: { type: Number, default: 0 },
-  num_quotes: { type: Number, default: 0 },
-
+  
   liked_by: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   retweet_by: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   quotes_tweets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tweet" }],
