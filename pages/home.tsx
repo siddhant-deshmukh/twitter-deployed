@@ -2,7 +2,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
-import Tweet from '../components/Tweet'
+import Tweet from '../components/Tweet/FeedTweetComponent'
 import { ITweet } from '@/models/Tweet'
 import { useCallback, useEffect, useState } from 'react'
 import useSWRInfinite from "swr/infinite";
@@ -31,8 +31,13 @@ export default function Home() {
   const fetchTweetFeed = useCallback(async (url: string) => {
     const data = await fetch(url).then((res) => res.json());
     const tweetIds = data.map((tweet : ITweet)=>{
+
+      const exist_ = cache.get(`tweet/${tweet._id}`)
       //@ts-ignore
-      cache.set(`tweet/${tweet._id}`,tweet)
+      if(!exist_ || !exist_._id){
+        //@ts-ignore
+        cache.set(`tweet/${tweet._id}`,tweet)
+      }
       return tweet._id
     })
     console.log("data",url,tweetIds)

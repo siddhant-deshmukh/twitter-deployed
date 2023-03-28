@@ -29,7 +29,7 @@ export interface ITweet {
   text: string,
   attachments?: ITweetAttachments,
   author: string,
-  time: Date,
+  time: string,
 
   num_views: number,
   num_comments: number,
@@ -37,13 +37,13 @@ export interface ITweet {
   num_likes: number,
   num_retweet: number,
 
-  authorDetails: {
-    _id: string,
-    name: string,
-    user_name: string,
-    avatar?: string,
-    about?: string
-  },
+  // authorDetails: {
+  //   _id: string,
+  //   name: string,
+  //   user_name: string,
+  //   avatar?: string,
+  //   about?: string
+  // },
   have_retweeted?: boolean,
   have_liked?: boolean,
 }

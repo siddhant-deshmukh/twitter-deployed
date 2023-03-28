@@ -18,6 +18,7 @@ export default async function handler(
   } = req
   await dbConnect()
 
+  const defaultUser = "64219d64a6a5b870d5753c03"
   const {  tweet_id } = req.query
   // console.log(skip,limit)
   // console.log(`${(skip)?Number(skip):0}`,`${(limit)?Number(skip):5}`)
@@ -26,27 +27,27 @@ export default async function handler(
     return res.status(401).json({ msg: 'No tweet_id found' })
   }
   const tweetid = new mongoose.Types.ObjectId(tweet_id as string)
-  console.log(tweet_id)
+  // console.log(tweet_id)
   const tweets = await Tweet.aggregate([
     { $match: { _id: tweetid } },
-    {
-      $lookup:
-      {
-        from: "users",
-        localField: "author",
-        foreignField: "_id",
-        pipeline: [
-          { $project: { avatar: 1, user_name: 1, name: 1, about: 1 } }
-        ],
+    // {
+    //   $lookup:
+    //   {
+    //     from: "users",
+    //     localField: "author",
+    //     foreignField: "_id",
+    //     pipeline: [
+    //       { $project: { avatar: 1, user_name: 1, name: 1, about: 1 } }
+    //     ],
 
-        as: "authorDetails"
-      }
-    },
+    //     as: "authorDetails"
+    //   }
+    // },
     {
       $lookup:
       {
         from: "likes",
-        let: { tweet_author: { $toObjectId: "64219d64a6a5b870d5753c03" }, tweet_id: { $toObjectId: "$_id" } },
+        let: { tweet_author: { $toObjectId: defaultUser }, tweet_id: { $toObjectId: "$_id" } },
         pipeline: [
           {
             $match: {
@@ -67,7 +68,7 @@ export default async function handler(
       $lookup:
       {
         from: "retweets",
-        let: { tweet_author: { $toObjectId: "64219d64a6a5b870d5753c03" }, tweet_id: { $toObjectId: "$_id" } },
+        let: { tweet_author: { $toObjectId: defaultUser }, tweet_id: { $toObjectId: "$_id" } },
         pipeline: [
           {
             $match: {
@@ -95,7 +96,7 @@ export default async function handler(
       }
     },
   ])
-  console.log('here to look tweet',tweet_id)
+  // console.log('here to look tweet',tweet_id)
   if(tweets.length > 0){
     res.status(200).json(tweets[0])
   }else{

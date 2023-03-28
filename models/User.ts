@@ -46,6 +46,8 @@ export interface IUser  extends IUserSnippet {
     num_followers?:number,
     num_following?:number,
     num_tweets?:number,
+
+    doesFollow?:true | false
 }
 
 const UserSchema = new mongoose.Schema<IUserStored>({
@@ -60,6 +62,7 @@ const UserSchema = new mongoose.Schema<IUserStored>({
     followers:[{type: mongoose.Schema.Types.ObjectId, ref: 'followers'}],
     following:[{type: mongoose.Schema.Types.ObjectId, ref: 'following'}],
     
+    num_tweets:{type:Number,default:0},
     avatar:{type:String},
 })
 

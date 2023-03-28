@@ -2,9 +2,9 @@ import { ITweet } from '@/models/Tweet'
 import React, { useEffect, useState } from 'react'
 import { useSWRConfig } from 'swr'
 
-const useTweetsCache = ({ tweet_id }: {
+const useTweetsCache = (
     tweet_id: string
-}) => {
+) => {
     const [tweet, setTweet] = useState<ITweet | undefined>(undefined)
     const [loading, setLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
@@ -17,7 +17,7 @@ const useTweetsCache = ({ tweet_id }: {
                 new_ = {
                     ...new_,
                     have_liked: (new_.have_liked) ? (false) : true,
-                    num_likes: (!new_.have_liked) ? (new_.num_likes || 0 + 1) : (new_.num_likes || 2 - 1)
+                    num_likes: (!new_.have_liked) ? (new_.num_likes  + 1) : (new_.num_likes - 1)
                 }
                 console.log('liked')
             }
@@ -25,7 +25,7 @@ const useTweetsCache = ({ tweet_id }: {
                 new_ = {
                     ...new_,
                     have_retweeted: (new_.have_retweeted) ? (false) : true,
-                    num_retweet: (!new_.have_retweeted) ? (new_.num_retweet || 0 + 1) : (new_.num_retweet || 2 - 1)
+                    num_retweet: (!new_.have_retweeted) ? (new_.num_retweet  + 1) : (new_.num_retweet - 1)
                 }
             }
             //@ts-ignore
@@ -62,7 +62,9 @@ const useTweetsCache = ({ tweet_id }: {
     }, [])
     return {
         tweet,
-        updateTweet
+        updateTweet,
+        loading,
+        error
     }
 }
 
