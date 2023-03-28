@@ -1,9 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
-import dbConnect from '../../lib/dbConnect'
+import dbConnect from '../../../lib/dbConnect'
 import mongoose from 'mongoose'
-import Tweet, { ITweet } from '../../models/Tweet'
-import User from '../../models/User'
+import Tweet, { ITweet } from '../../../models/Tweet'
+import User from '../../../models/User'
 
 type Data = ITweet[]
 
@@ -18,7 +18,7 @@ export default async function handler(
   } = req
   await dbConnect()
 
-  const { skip, limit } = req.query
+  const { skip, limit, tweet_id } = req.query
   // console.log(skip,limit)
   // console.log(`${(skip)?Number(skip):0}`,`${(limit)?Number(skip):5}`)
   const tweets = await Tweet.aggregate([

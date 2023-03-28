@@ -6,12 +6,17 @@ import Tweet from '../components/Tweet'
 import { ITweet } from '@/models/Tweet'
 import { useCallback, useEffect, useState } from 'react'
 import useSWRInfinite from "swr/infinite";
-import { useSWRConfig } from 'swr'
+import { Cache, useSWRConfig } from 'swr'
 // import { SWRConfig } from 'swr'
 
 const inter = Inter({ subsets: ['latin'] })
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const fetcher = async (url: string,cache: Cache<any>) => {
+  const data = await fetch(url).then((res) => res.json());
+  console.log("data",url,data)
+  return data
+}
+
 const pageLength = 5
 export default function Home() {
   // const [TweetFeed,setFeed] = useState<ITweet[]>([])
@@ -25,9 +30,10 @@ export default function Home() {
   //     setFeed(data.tweets)
   //   })
   // },[])
-  const { refreshInterval, cache, ...restConfig } = useSWRConfig()
-  const { data : TweetFeed, mutate, size, setSize, isValidating, isLoading } = useSWRInfinite(
-    (index) => `/api/hello?skip=${index * pageLength}&limit=${pageLength}`,
+  const { refreshInterval, cache,mutate } = useSWRConfig()
+  
+  const { data: TweetFeed, mutate: mutateTweetFeed, size, setSize, isValidating, isLoading } = useSWRInfinite(
+    (index) => `/api/tweet?skip=${index * pageLength}&limit=${pageLength}`,
     fetcher,
     {
       revalidateIfStale: false,
@@ -36,36 +42,37 @@ export default function Home() {
     }
   )
   // const TweetFeed = data ? data.concat(...data) : [];
-  const updateTweet = useCallback((pageNum:number,indexNum:number,what:'liked'|'retweet') => {
+  const updateTweet = useCallback((pageNum: number, indexNum: number, what: 'liked' | 'retweet') => {
     //@ts-ignore
-    mutate((data)=>{
+    mutateTweetFeed((data) => {
       let new_ = data?.slice()
-      console.log("data in mutate",pageNum , indexNum,pageNum >= 0, indexNum >= 0 , new_, new_[pageNum], new_[pageNum][indexNum])
+      // console.log("data in mutate",pageNum , indexNum,pageNum >= 0, indexNum >= 0 , new_, new_[pageNum], new_[pageNum][indexNum])
 
-      if(pageNum >= 0 && indexNum >= 0 && new_ && new_[pageNum] && new_[pageNum][indexNum]){
-        let prev = {...new_[pageNum][indexNum]}
-        if(what ==='liked'){
+      if (pageNum >= 0 && indexNum >= 0 && new_ && new_[pageNum] && new_[pageNum][indexNum]) {
+        let prev = { ...new_[pageNum][indexNum] }
+        if (what === 'liked') {
           new_[pageNum][indexNum] = {
-            ...new_[pageNum][indexNum], 
-            have_liked:(prev.have_liked)?(false):true, 
-            num_likes:(prev.have_liked || prev.have_liked===undefined)?(prev.num_likes+1):(prev.num_likes-1)
+            ...new_[pageNum][indexNum],
+            have_liked: (prev.have_liked) ? (false) : true,
+            num_likes: (!prev.have_liked) ? (prev.num_likes + 1) : (prev.num_likes - 1)
           }
           console.log('liked')
         }
-        if(what ==='retweet'){
+        if (what === 'retweet') {
           new_[pageNum][indexNum] = {
-            ...new_[pageNum][indexNum], 
-            have_retweeted:(prev.have_retweeted)?(false):true, 
-            num_retweet:(prev.have_retweeted || prev.have_retweeted===undefined)?(prev.num_retweet+1):(prev.num_retweet-1)
+            ...new_[pageNum][indexNum],
+            have_retweeted: (prev.have_retweeted) ? (false) : true,
+            num_retweet: (!prev.have_retweeted) ? (prev.num_retweet + 1) : (prev.num_retweet - 1)
           }
         }
-        console.log("data in mutate",new_)
+        console.log("data in mutate", new_)
       }
       return new_
     })
-  }, [mutate])
+  }, [mutateTweetFeed])
+
   useEffect(() => {
-    console.log('Cache',  cache)
+    console.log('Cache', cache)
 
   }, [cache])
   return (
@@ -76,19 +83,24 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
+      <h1 className='flex w-full space-x-10 p-3 sticky top-0 opacity-90 bg-white'>
+        
+        <span className='text-xl font-semibold'>
+          Home
+        </span>
+      </h1>
       <div className="">
         {
           TweetFeed &&
-          TweetFeed.map((page : ITweet[] | [],pageNum) => {
-            if(!page) return <div></div>
+          TweetFeed.map((page: ITweet[] | [], pageNum) => {
+            if (!page) return <div></div>
 
-            return page.map((tweet : ITweet,indexNum)=>{
+            return page.map((tweet: ITweet, indexNum) => {
               return <div key={tweet._id}>
 
-                {tweet._id && <Tweet tweet={tweet} updateTweet={updateTweet} pageNum={pageNum} indexNum={indexNum}/>}
+                {tweet._id && <Tweet tweet={tweet} updateTweet={updateTweet} pageNum={pageNum} indexNum={indexNum} />}
               </div>
-              })
+            })
           })
         }
       </div>
