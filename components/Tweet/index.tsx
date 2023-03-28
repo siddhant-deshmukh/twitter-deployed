@@ -3,24 +3,74 @@ import { ITweet } from "../../models/Tweet";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useSWRConfig } from "swr";
+import useSWR from 'swr'
 
-const FeedTweetComponent = ({ tweet , updateTweet, pageNum, indexNum}: { 
-  tweet: ITweet,  
-  updateTweet: (pageNum: number, indexNum: number, what: 'liked' | 'retweet') => void
-  pageNum: number, 
-  indexNum: number
+const FeedTweetComponent = React.memo(({ tweet_id }: {
+  tweet_id: string,
+  // updateTweet: (tweet_id: string, what: 'liked' | 'retweet') => void
 }) => {
   const router = useRouter()
+  const { refreshInterval, cache } = useSWRConfig()
 
-  // console.log("Here!!!!!!!")
+  // const [tweet,setTweet] = useState<ITweet | null>(null)
+
+
+  const fetchTweet = useCallback(async (key: string) => {
+    const tweet_id = key.split('/')[1]
+    console.log("Here to find tweet!!!")
+    let pre = cache.get(`tweet/${tweet_id}`)
+    if (pre && pre._id) {
+      return pre
+    }
+    const data = await fetch(`/api/tweet/${tweet_id}`).then((res) => res.json());
   
+    return data
+  },[cache])
+  const { data: tweet, error, mutate: mutateTweet, isLoading } = useSWR<ITweet>(`tweet/${tweet_id}`, fetchTweet, {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false
+  })
+
+
+  const updateTweet = useCallback((tweet_id: string, what: 'liked' | 'retweet') => {
+    mutateTweet((tweet) => {
+
+      let updated_tweet = { ...tweet };
+      if (what === 'liked') {
+        updated_tweet = {
+          ...updated_tweet,
+          have_liked: (updated_tweet.have_liked) ? (false) : true,
+          num_likes: (!updated_tweet.have_liked) ? (updated_tweet.num_likes || 0 + 1) : (updated_tweet.num_likes || 2 - 1)
+        }
+        console.log('liked')
+      }
+      if (what === 'retweet') {
+        updated_tweet = {
+          ...updated_tweet,
+          have_retweeted: (updated_tweet.have_retweeted) ? (false) : true,
+          num_retweet: (!updated_tweet.have_retweeted) ? (updated_tweet.num_retweet || 0 + 1) : (updated_tweet.num_retweet || 2 - 1)
+        }
+      }
+      console.log(updated_tweet)
+      return updated_tweet
+    })
+    // mutateTweet(updateTweet)
+  }, [mutateTweet, tweet])
+
+  if (!tweet) {
+    return <div>
+
+    </div>
+  }
+
   return (
-    <div 
+    <div
       id={`${tweet._id}`}
       className="flex w-full px-2 py-1 border-b border-b-gray-200 border-r hover:cursor-pointer border-r-gray-200  hover:bg-gray-50"
-      onClick={(event : SyntheticEvent)=>{
+      onClick={(event: SyntheticEvent) => {
         //@ts-ignore
-        if(event.target && typeof event.target.className === 'string' && !event.target.className.includes('tweet-btn') && !event.target.className.includes('user-link')){
+        if (event.target && typeof event.target.className === 'string' && !event.target.className.includes('tweet-btn') && !event.target.className.includes('user-link')) {
           // console.log("Clicked here!! Liked this!!!",event)
           router.push(`/tweet/${tweet._id}`)
         }
@@ -59,26 +109,26 @@ const FeedTweetComponent = ({ tweet , updateTweet, pageNum, indexNum}: {
             </button>
           </li>
           <li className="w-full">
-            <button 
-              className={`w-fit ${(tweet.have_retweeted)?'text-green-500':''} items-center flex justify-start space-x-1 pr-4  group hover:text-green-700 tweet-btn`}
-              onClick={(event :  React.MouseEvent<HTMLButtonElement> )=>{
+            <button
+              className={`w-fit ${(tweet.have_retweeted) ? 'text-green-500' : ''} items-center flex justify-start space-x-1 pr-4  group hover:text-green-700 tweet-btn`}
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                 event.preventDefault();
-                updateTweet(pageNum, indexNum, 'retweet')
+                updateTweet(tweet._id, 'retweet')
               }}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.0} stroke="currentColor" className={`p-1.5 w-8 h-8 ${(tweet.have_retweeted)?'text-green-500':'text-gray-400'} rounded-full group-hover:text-green-700 group-hover:bg-green-100`}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.0} stroke="currentColor" className={`p-1.5 w-8 h-8 ${(tweet.have_retweeted) ? 'text-green-500' : 'text-gray-400'} rounded-full group-hover:text-green-700 group-hover:bg-green-100`}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3" />
               </svg>
               <span className="text-blue">{tweet.num_retweet}</span>
             </button>
           </li>
           <li className="w-full">
-            <button 
-              className={`w-fit ${(tweet.have_liked)?'text-red-700':''} items-center flex justify-start space-x-1 pr-4  group hover:text-red-700 tweet-btn`}
-              onClick={(event :  React.MouseEvent<HTMLButtonElement> )=>{
+            <button
+              className={`w-fit ${(tweet.have_liked) ? 'text-red-700' : ''} items-center flex justify-start space-x-1 pr-4  group hover:text-red-700 tweet-btn`}
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                 event.preventDefault();
-                updateTweet(pageNum, indexNum, 'liked')
+                updateTweet(tweet._id, 'liked')
               }}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill={(tweet.have_liked)?'rgb(256 68 68)':'none'} viewBox="0 0 24 24" strokeWidth={2.0} stroke="currentColor" className={`p-1.5 w-8 h-8 ${(tweet.have_liked)?'text-red-700':'text-gray-400'}  rounded-full group-hover:text-red-700 group-hover:bg-red-100`}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill={(tweet.have_liked) ? 'rgb(256 68 68)' : 'none'} viewBox="0 0 24 24" strokeWidth={2.0} stroke="currentColor" className={`p-1.5 w-8 h-8 ${(tweet.have_liked) ? 'text-red-700' : 'text-gray-400'}  rounded-full group-hover:text-red-700 group-hover:bg-red-100`}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
               </svg>
               <span className="text-blue">{tweet.num_likes}</span>
@@ -93,11 +143,11 @@ const FeedTweetComponent = ({ tweet , updateTweet, pageNum, indexNum}: {
             </button>
           </li>
           <li className="w-full">
-            <button 
+            <button
               className="w-fit items-center flex justify-start space-x-1 pr-4  group hover:text-blue-700 tweet-btn"
-              onClick={(event)=>{
+              onClick={(event) => {
                 console.log("Here")
-                
+
                 event.preventDefault();
               }}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.0} stroke="currentColor" className="p-1.5 w-8 h-8 text-gray-400 rounded-full group-hover:text-blue-700 group-hover:bg-blue-100">
@@ -110,6 +160,6 @@ const FeedTweetComponent = ({ tweet , updateTweet, pageNum, indexNum}: {
       </div>
     </div>
   );
-}
+})
 
 export default FeedTweetComponent

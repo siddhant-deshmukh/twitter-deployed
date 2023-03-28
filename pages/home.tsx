@@ -11,11 +11,7 @@ import { Cache, useSWRConfig } from 'swr'
 
 const inter = Inter({ subsets: ['latin'] })
 
-const fetcher = async (url: string,cache: Cache<any>) => {
-  const data = await fetch(url).then((res) => res.json());
-  console.log("data",url,data)
-  return data
-}
+
 
 const pageLength = 5
 export default function Home() {
@@ -31,10 +27,21 @@ export default function Home() {
   //   })
   // },[])
   const { refreshInterval, cache,mutate } = useSWRConfig()
-  
+
+  const fetchTweetFeed = useCallback(async (url: string) => {
+    const data = await fetch(url).then((res) => res.json());
+    const tweetIds = data.map((tweet : ITweet)=>{
+      //@ts-ignore
+      cache.set(`tweet/${tweet._id}`,tweet)
+      return tweet._id
+    })
+    console.log("data",url,tweetIds)
+    return tweetIds
+  },[cache])
+
   const { data: TweetFeed, mutate: mutateTweetFeed, size, setSize, isValidating, isLoading } = useSWRInfinite(
     (index) => `/api/tweet?skip=${index * pageLength}&limit=${pageLength}`,
-    fetcher,
+    fetchTweetFeed,
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,
@@ -42,34 +49,29 @@ export default function Home() {
     }
   )
   // const TweetFeed = data ? data.concat(...data) : [];
-  const updateTweet = useCallback((pageNum: number, indexNum: number, what: 'liked' | 'retweet') => {
-    //@ts-ignore
-    mutateTweetFeed((data) => {
-      let new_ = data?.slice()
-      // console.log("data in mutate",pageNum , indexNum,pageNum >= 0, indexNum >= 0 , new_, new_[pageNum], new_[pageNum][indexNum])
-
-      if (pageNum >= 0 && indexNum >= 0 && new_ && new_[pageNum] && new_[pageNum][indexNum]) {
-        let prev = { ...new_[pageNum][indexNum] }
-        if (what === 'liked') {
-          new_[pageNum][indexNum] = {
-            ...new_[pageNum][indexNum],
-            have_liked: (prev.have_liked) ? (false) : true,
-            num_likes: (!prev.have_liked) ? (prev.num_likes + 1) : (prev.num_likes - 1)
-          }
-          console.log('liked')
-        }
-        if (what === 'retweet') {
-          new_[pageNum][indexNum] = {
-            ...new_[pageNum][indexNum],
-            have_retweeted: (prev.have_retweeted) ? (false) : true,
-            num_retweet: (!prev.have_retweeted) ? (prev.num_retweet + 1) : (prev.num_retweet - 1)
-          }
-        }
-        console.log("data in mutate", new_)
+  const updateTweet = useCallback((tweet_id:string, what: 'liked' | 'retweet') => {
+    let prev  = cache.get(`tweet/${tweet_id}`) as ITweet
+    if(!prev || !prev._id) return;
+    let updated_tweet = {...prev};
+    if (what === 'liked') {
+      updated_tweet = {
+        ...updated_tweet,
+        have_liked: (prev.have_liked) ? (false) : true,
+        num_likes: (!prev.have_liked) ? (prev.num_likes + 1) : (prev.num_likes - 1)
       }
-      return new_
-    })
-  }, [mutateTweetFeed])
+      console.log('liked')
+    }
+    if (what === 'retweet') {
+      updated_tweet = {
+        ...updated_tweet,
+        have_retweeted: (prev.have_retweeted) ? (false) : true,
+        num_retweet: (!prev.have_retweeted) ? (prev.num_retweet + 1) : (prev.num_retweet - 1)
+      }
+    }
+    //@ts-ignore
+    cache.set(`tweet/${tweet_id}`,updated_tweet)
+  
+  }, [cache])
 
   useEffect(() => {
     console.log('Cache', cache)
@@ -92,13 +94,12 @@ export default function Home() {
       <div className="">
         {
           TweetFeed &&
-          TweetFeed.map((page: ITweet[] | [], pageNum) => {
+          TweetFeed.map((page: string[] | [], pageNum) => {
             if (!page) return <div></div>
+            return page.map((tweet_id: string, indexNum) => {
+              return <div key={tweet_id}>
 
-            return page.map((tweet: ITweet, indexNum) => {
-              return <div key={tweet._id}>
-
-                {tweet._id && <Tweet tweet={tweet} updateTweet={updateTweet} pageNum={pageNum} indexNum={indexNum} />}
+                {tweet_id && <Tweet tweet_id={tweet_id}  />}
               </div>
             })
           })

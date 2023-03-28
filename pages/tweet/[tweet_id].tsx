@@ -55,10 +55,7 @@ export default function TweetPage() {
             return new_
         })
     }, [mutate])
-    useEffect(() => {
-        console.log('Cache', cache)
-
-    }, [cache])
+    
     return (
         <div>
             <Head>

@@ -5,7 +5,7 @@ import mongoose from 'mongoose'
 import Tweet, { ITweet } from '../../../models/Tweet'
 import User from '../../../models/User'
 
-type Data = ITweet[]
+type Data = ITweet | { msg: string }
 
 export default async function handler(
   req: NextApiRequest,
@@ -18,32 +18,87 @@ export default async function handler(
   } = req
   await dbConnect()
 
-  const { skip, limit, tweet_id } = req.query
+  const {  tweet_id } = req.query
   // console.log(skip,limit)
   // console.log(`${(skip)?Number(skip):0}`,`${(limit)?Number(skip):5}`)
+
+  if (!tweet_id || tweet_id.length !== 24) {
+    return res.status(401).json({ msg: 'No tweet_id found' })
+  }
+  const tweetid = new mongoose.Types.ObjectId(tweet_id as string)
+  console.log(tweet_id)
   const tweets = await Tweet.aggregate([
-    { $skip: (skip)?Number(skip):0 },
-    { $limit:(limit)?Number(limit):5 },
-    { $lookup:
+    { $match: { _id: tweetid } },
+    {
+      $lookup:
       {
         from: "users",
         localField: "author",
         foreignField: "_id",
-        pipeline:[
-          {$project : {avatar : 1, user_name: 1, name : 1, about: 1}}
+        pipeline: [
+          { $project: { avatar: 1, user_name: 1, name: 1, about: 1 } }
         ],
 
         as: "authorDetails"
       }
     },
-    { $set : {
-      authorDetails : { $arrayElemAt : ["$authorDetails",0] },
-      
-    }}
+    {
+      $lookup:
+      {
+        from: "likes",
+        let: { tweet_author: { $toObjectId: "64219d64a6a5b870d5753c03" }, tweet_id: { $toObjectId: "$_id" } },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$tweetId", "$$tweet_id"] },
+                  { $eq: ["$userId", "$$tweet_author"] },
+                ]
+              }
+            },
+          },
+        ],
+
+        as: "have_liked"
+      }
+    },
+    {
+      $lookup:
+      {
+        from: "retweets",
+        let: { tweet_author: { $toObjectId: "64219d64a6a5b870d5753c03" }, tweet_id: { $toObjectId: "$_id" } },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$tweetId", "$$tweet_id"] },
+                  { $eq: ["$userId", "$$tweet_author"] },
+                ]
+              }
+            }
+
+          },
+        ],
+
+        as: "have_retweeted"
+      }
+    },
+    {
+      $set: {
+        authorDetails: { $arrayElemAt: ["$authorDetails", 0] },
+        have_liked: { $cond: [{ $gte: [{ $size: '$have_liked' }, 1] }, true, false] },
+        have_retweeted: { $cond: [{ $gte: [{ $size: '$have_retweeted' }, 1] }, true, false] },
+        // have_liked : { $arrayElemAt: ["$have_liked", 0] },
+        // have_retweeted : { $arrayElemAt: ["$have_retweeted", 0] },
+      }
+    },
   ])
-  console.log('was here',skip,limit)
-  if(limit === '1'){
-    return res.status(200).json(tweets || {})
+  console.log('here to look tweet',tweet_id)
+  if(tweets.length > 0){
+    res.status(200).json(tweets[0])
+  }else{
+    res.status(403).json({msg : 'Tweet not found'})
   }
-  res.status(200).json(tweets)
 }
