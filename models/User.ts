@@ -32,11 +32,14 @@ export interface IUserStored extends IUserCreate{
     following:[Types.ObjectId],
 }
 export interface IUserSnippet{
+
+    _id:Types.ObjectId,
     user_name:string,
     name:string,
-    _id:string,
-    avatar:string,
-    about:string,
+    avatar?:string,
+    about?:string,
+    followers:[string],
+    following:[string],
 }
 export interface IUser  extends IUserSnippet {
     
@@ -51,11 +54,11 @@ export interface IUser  extends IUserSnippet {
 }
 
 const UserSchema = new mongoose.Schema<IUserStored>({
-    email: {type:String,required:true,unique:true,maxLength:40},
-    name:{type:String,required:true,maxLength:40},
+    email: {type:String,required:true,unique:true,maxLength:40,minlength:4},
+    name:{type:String,required:true,maxLength:40,minlength:4},
     accounts: {type:Map,required:true} ,
 
-    user_name : {type:String,maxLength:10,sparse:false,required:true,unique:true},
+    user_name : {type:String,maxLength:10,sparse:false,required:true,unique:true,minlength:2},
     dob:{type:Date,max:Date.now()},
     about:{type:String,maxLength:150},
 

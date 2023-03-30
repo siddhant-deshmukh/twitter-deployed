@@ -55,13 +55,13 @@ const contentSchema = new mongoose.Schema<ITweetAttachments>({
 }, { _id: false })
 
 const TweetSchema = new mongoose.Schema<ITweetStored>({
-  author: { type: mongoose.Schema.Types.ObjectId, required: true },
-  parent_tweet: { type: mongoose.Schema.Types.ObjectId },
+  author: { type: mongoose.Schema.Types.ObjectId, required: true, index:true },
+  parent_tweet: { type: mongoose.Schema.Types.ObjectId, sparse: true },
   text: { type: String, maxlength: 400, default: "" },
   attachments: contentSchema,
 
 
-  time: { type: Date, required: true, default: Date.now() },
+  time: { type: Date, required: true, default: Date.now(), index:true },
   num_views: { type: Number, default: 0 },
   num_likes: { type: Number, default: 0 },
   num_retweet: { type: Number, default: 0 },

@@ -5,10 +5,10 @@ export interface IRetweet {
     tweetId: Types.ObjectId,
     time: Date,
 }
-const mediaSchema = new mongoose.Schema<IRetweet>({
+const retweetSchema = new mongoose.Schema<IRetweet>({
     userId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
     tweetId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
     time: { type: Date, default : Date.now() }
 })
-const Retweet = mongoose.models.Retweet || mongoose.model<IRetweet>("Retweet", mediaSchema);
+const Retweet = mongoose.models.Retweet || mongoose.model<IRetweet>("Retweet", retweetSchema);
 export default Retweet

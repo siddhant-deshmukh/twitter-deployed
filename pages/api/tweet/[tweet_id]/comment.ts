@@ -1,9 +1,10 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
-import dbConnect from '../../../lib/dbConnect'
+import dbConnect from '../../../../lib/dbConnect'
 import mongoose from 'mongoose'
-import Tweet, { ITweet } from '../../../models/Tweet'
-import User from '../../../models/User'
+import Tweet, { ITweet } from '../../../../models/Tweet'
+import User from '../../../../models/User'
+import { getUserSession } from '@/lib/getUserFromToken'
 
 type Data = ITweet | { msg: string }
 
@@ -17,8 +18,12 @@ export default async function handler(
     method
   } = req
   await dbConnect()
+  
 
-  const defaultUser = "64219d64a6a5b870d5753c03"
+  const user = await getUserSession(req, res)
+  if (!user) {
+    return res.status(403).json({ msg: 'error in token!!' })
+  }
   const {  tweet_id } = req.query
   // console.log(skip,limit)
   // console.log(`${(skip)?Number(skip):0}`,`${(limit)?Number(skip):5}`)
@@ -47,7 +52,7 @@ export default async function handler(
       $lookup:
       {
         from: "likes",
-        let: { tweet_author: { $toObjectId: defaultUser }, tweet_id: { $toObjectId: "$_id" } },
+        let: { tweet_author: { $toObjectId: user._id }, tweet_id: { $toObjectId: "$_id" } },
         pipeline: [
           {
             $match: {
@@ -68,7 +73,7 @@ export default async function handler(
       $lookup:
       {
         from: "retweets",
-        let: { tweet_author: { $toObjectId: defaultUser }, tweet_id: { $toObjectId: "$_id" } },
+        let: { tweet_author: { $toObjectId: user._id }, tweet_id: { $toObjectId: "$_id" } },
         pipeline: [
           {
             $match: {

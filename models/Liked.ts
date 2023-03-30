@@ -5,10 +5,10 @@ export interface ILiked {
     tweetId: Types.ObjectId,
     time: Date,
 }
-const mediaSchema = new mongoose.Schema<ILiked>({
+const LikedSchema = new mongoose.Schema<ILiked>({
     userId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
     tweetId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
     time: { type: Date, default : Date.now() }
 })
-const Liked = mongoose.models.Liked || mongoose.model<ILiked>("Liked", mediaSchema);
+const Liked = mongoose.models.Like || mongoose.model<ILiked>("Like", LikedSchema);
 export default Liked

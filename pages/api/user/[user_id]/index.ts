@@ -1,9 +1,13 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
-import dbConnect from '../../../lib/dbConnect'
+import dbConnect from '../../../../lib/dbConnect'
 import mongoose from 'mongoose'
-import Tweet, { ITweet } from '../../../models/Tweet'
-import User, { IUser } from '../../../models/User'
+import Tweet, { ITweet } from '../../../../models/Tweet'
+import User, { IUser, IUserStored } from '../../../../models/User'
+import { getUserSession } from '@/lib/getUserFromToken'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import { serialize } from 'cookie'
 
 type Data = IUser | { msg: string }
 
@@ -12,14 +16,18 @@ export default async function handler(
     res: NextApiResponse<Data>
 ) {
 
-    const defaultUser = "64219d64a6a5b870d5753c03"
-    const defaultUserId = new mongoose.Types.ObjectId(defaultUser as string)
-
+    // console.log(req.cookies)
     const {
         body,
         method
     } = req
     await dbConnect()
+    // const user = await getUserSession(req, res)
+    // if(!user){
+    //     return res.status(403).json({msg : 'error in token!!'})
+    // }
+
+    
 
     const { user_id } = req.query
     if (!user_id || user_id.length !== 24) {
@@ -33,14 +41,21 @@ export default async function handler(
             $project: {
                 name: 1, user_name: 1, about: 1, avatar: 1,
                 // following: 1, followers: 1,
-                doesFollow: { $in: [defaultUserId, "$followers"] },
-                num_followers: { $size : "$followers" },
-                num_following: { $size : "$following" },
+                // doesFollow: { $in: [defaultUserId, "$followers"] },
+                num_followers: { $size: "$followers" },
+                num_following: { $size: "$following" },
             }
         }
     ])
 
 
+    res.setHeader('Set-Cookie', serialize('meow', 'Bhittu Meow', {
+        httpOnly: false,
+        maxAge: 60 * 60 * 100000,
+        sameSite: true,
+        path:'/'
+    }))
+    console.log("setting header")
     if (users.length > 0) {
         res.status(200).json(users[0])
     } else {
