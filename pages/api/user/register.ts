@@ -28,13 +28,13 @@ export default async function handler(
         if (typeof email !== 'string' || typeof name !== 'string' || typeof user_name !== 'string' || typeof password !== 'string' ||
             email.length > 40 || email.length < 4 || name.length < 4 || name.length > 40 || user_name.length > 10 || user_name.length < 2 ||
             password.length < 5 || password.length > 20) {
-            return res.status(401).json({ msg: 'Incorrect req body' })
+            return res.status(400).json({ msg: 'Incorrect req body' })
         }
         try {
             const check_email = await User.find({ email })
             const check_username = await User.find({ user_name })
             if ((check_email && check_email[0]) || (check_username && check_username[0])) {
-                return res.status(401).json({ msg: 'User already exist' })
+                return res.status(400).json({ msg: 'User already exist' })
             }
 
             const user_password = await bcrypt.hash(password, 10)
@@ -57,9 +57,9 @@ export default async function handler(
             }))
             return res.status(201).json(new_user)
         } catch (error){
-            return res.status(401).json({msg : 'some internal error occured!'})
+            return res.status(500).json({msg : 'some internal error occured!'})
         }
     }
 
-    res.status(401).json({msg:'Incorrect method'})
+    res.status(405).json({msg:'Incorrect method'})
 }

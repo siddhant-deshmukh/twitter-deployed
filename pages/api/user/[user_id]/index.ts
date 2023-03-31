@@ -24,14 +24,14 @@ export default async function handler(
     await dbConnect()
     // const user = await getUserSession(req, res)
     // if(!user){
-    //     return res.status(403).json({msg : 'error in token!!'})
+    //     return res.status(401).json({msg : 'error in token!!'})
     // }
 
     
 
     const { user_id } = req.query
     if (!user_id || user_id.length !== 24) {
-        return res.status(401).json({ msg: 'No user_id found' })
+        return res.status(404).json({ msg: 'No user_id found' })
     }
     const userid = new mongoose.Types.ObjectId(user_id as string)
 
@@ -59,6 +59,6 @@ export default async function handler(
     if (users.length > 0) {
         res.status(200).json(users[0])
     } else {
-        res.status(403).json({ msg: 'User not found' })
+        res.status(404).json({ msg: 'User not found' })
     }
 }

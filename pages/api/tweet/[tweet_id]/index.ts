@@ -22,14 +22,14 @@ export default async function handler(
 
   const user = await getUserSession(req, res)
   if (!user) {
-    return res.status(403).json({ msg: 'error in token!!' })
+    return res.status(401).json({ msg: 'error in token!!' })
   }
   const {  tweet_id } = req.query
   // console.log(skip,limit)
   // console.log(`${(skip)?Number(skip):0}`,`${(limit)?Number(skip):5}`)
 
   if (!tweet_id || tweet_id.length !== 24) {
-    return res.status(401).json({ msg: 'No tweet_id found' })
+    return res.status(404).json({ msg: 'No tweet_id found' })
   }
   const tweetid = new mongoose.Types.ObjectId(tweet_id as string)
   // console.log(tweet_id)
@@ -105,6 +105,6 @@ export default async function handler(
   if(tweets.length > 0){
     res.status(200).json(tweets[0])
   }else{
-    res.status(403).json({msg : 'Tweet not found'})
+    res.status(404).json({msg : 'Tweet not found'})
   }
 }

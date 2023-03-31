@@ -21,7 +21,7 @@ export default async function handler(
     await dbConnect()
     const user = await getUserSession(req, res)
     if (!user) {
-        return res.status(403).json({ msg: 'error in token!!' })
+        return res.status(401).json({ msg: 'error in token!!' })
     }
 
     if (method === 'GET') {
@@ -29,6 +29,7 @@ export default async function handler(
         // console.log(skip,limit)
         // console.log(`${(skip)?Number(skip):0}`,`${(limit)?Number(skip):5}`)
         const tweets = await Tweet.aggregate([
+            { $sort : { time : -1 } },
             { $skip: (skip) ? Number(skip) : 0 },
             { $limit: (limit) ? Number(limit) : 5 },
             {
@@ -118,16 +119,16 @@ export default async function handler(
             text.length > 400 || text.length <= 0
         ) {
             console.log(!author_id, !text, author_id, text, typeof author_id !== 'string', typeof text !== 'string')
-            return res.status(401).json({ msg: 'incorrect data given' })
+            return res.status(400).json({ msg: 'incorrect data given' })
         }
 
         const author = await User.findById(author_id)
-        if (!author) return res.status(401).json({ msg: 'incorrect given author_id' })
+        if (!author) return res.status(400).json({ msg: 'incorrect given author_id' })
 
         let parent_check: any;
         if (parent_tweet) {
             parent_check = await Tweet.findById(parent_tweet)
-            if (!parent_check) return res.status(401).json({ msg: 'incorrect given parent_tweet' })
+            if (!parent_check) return res.status(404).json({ msg: 'incorrect given parent_tweet' })
         }
 
         const tweet = await Tweet.create({
@@ -147,6 +148,6 @@ export default async function handler(
         }
         return res.status(200).json(tweet)
     } else {
-        return res.status(403).json({ msg: "method doesn't exist" })
+        return res.status(404).json({ msg: "method doesn't exist" })
     }
 }

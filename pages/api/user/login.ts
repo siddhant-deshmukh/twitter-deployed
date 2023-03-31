@@ -32,12 +32,12 @@ export default async function handler(
         if (typeof user_name !== 'string' || typeof password !== 'string' ||
             user_name.length > 10 || user_name.length < 2 ||
             password.length < 5 || password.length > 20) {
-            return res.status(401).json({ msg: 'Incorrect req body' })
+            return res.status(400).json({ msg: 'Incorrect req body' })
         }
         try {
             const check_username: IUserStored[] = await User.find({ user_name })
             if (!(check_username && check_username[0])) {
-                return res.status(401).json({ msg: 'User name doesn`t exist' })
+                return res.status(404).json({ msg: 'User name doesn`t exist' })
             }
             let actual_password = check_username[0].accounts.get('password').password
             console.log(actual_password)
@@ -55,12 +55,12 @@ export default async function handler(
                 return res.status(201).json(token)
             } else {
                 // console.log(check_username[0].accounts.password?.password,check_username)
-                return res.status(401).json({ msg: 'Doesn`t allow password login' })
+                return res.status(400).json({ msg: 'Doesn`t allow password login' })
             }
         } catch (error) {
-            return res.status(401).json({ msg: 'some internal error occured!' })
+            return res.status(500).json({ msg: 'some internal error occured!' })
         }
     }
 
-    res.status(401).json({msg:'Incorrect method'})
+    res.status(405).json({msg:'Incorrect method'})
 }
