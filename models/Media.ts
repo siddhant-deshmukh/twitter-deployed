@@ -5,7 +5,6 @@ export interface IMedia{
     url?:string,
     key?:string,
     size:number,
-    file:any,
     parent_tweet?:mongoose.Types.ObjectId
 }
 const mediaSchema = new mongoose.Schema<IMedia>({

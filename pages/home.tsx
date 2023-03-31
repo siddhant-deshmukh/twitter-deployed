@@ -7,6 +7,8 @@ import { ITweet } from '@/models/Tweet'
 import { useCallback, useEffect, useState } from 'react'
 import useSWRInfinite from "swr/infinite";
 import { Cache, useSWRConfig } from 'swr'
+import useSWR from 'swr'
+import { FeedTweetEditor } from '@/components/Tweet/FeedEditor'
 // import { SWRConfig } from 'swr'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -29,13 +31,13 @@ export default function Home() {
   const { refreshInterval, cache, mutate } = useSWRConfig()
 
   const fetchTweetFeed = useCallback(async (url: string) => {
-    const data = await fetch(url, { 
+    const data = await fetch(url, {
       credentials: 'include',
-      method:'GET' 
+      method: 'GET'
     }).then((res) => res.json());
     const tweetIds = data.map((tweet: ITweet) => {
 
-      const exist_ = cache.get(`tweet/${tweet._id}`)
+      const exist_ = cache
       //@ts-ignore
       if (!exist_ || !exist_._id) {
         //@ts-ignore
@@ -47,6 +49,10 @@ export default function Home() {
     return tweetIds
   }, [cache])
 
+  const {data:ownTweets} = useSWR('/own/tweetfeed',(str:string)=>{
+    const feed = cache.get('own/tweetfeed')
+    return feed
+  })
   const { data: TweetFeed, mutate: mutateTweetFeed, size, setSize, isValidating, isLoading } = useSWRInfinite(
     (index) => `/api/tweet?skip=${index * pageLength}&limit=${pageLength}`,
     fetchTweetFeed,
@@ -100,6 +106,17 @@ export default function Home() {
         </span>
       </h1>
       <div className="">
+        < FeedTweetEditor />
+        {
+          ownTweets &&
+          //@ts-ignore
+          ownTweets.map((tweet_id: string, indexNum) => {
+            return <div key={tweet_id}>
+
+              {tweet_id && <Tweet tweet_id={tweet_id} />}
+            </div>
+          })
+        }
         {
           TweetFeed &&
           TweetFeed.map((page: string[] | [], pageNum) => {

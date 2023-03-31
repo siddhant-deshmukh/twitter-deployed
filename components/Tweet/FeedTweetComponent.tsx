@@ -10,7 +10,6 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
 }) => {
   const router = useRouter()
   const { tweet, loading, updateTweet } = useTweetsCache(tweet_id)
-  const { authorDetails, loading: authorLoading, error: authorError } = useUserCache(tweet?._id)
 
   if (!tweet) {
     return <div>
@@ -20,7 +19,7 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
   return (
     <div
       id={`${tweet._id}`}
-      className="flex w-full px-3 pt-2 border-b border-b-gray-200 border-r hover:cursor-pointer border-r-gray-200  hover:bg-gray-50"
+      className="flex w-full px-2 pt-2 border-b border-b-gray-200 border-r hover:cursor-pointer border-r-gray-200  hover:bg-gray-50"
       onClick={(event: SyntheticEvent) => {
         //@ts-ignore
         if (event.target && typeof event.target.className === 'string' && !event.target.className.includes('tweet-btn') && !event.target.className.includes('user-link')) {
@@ -109,11 +108,11 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
 
 export default FeedTweetComponent
 
-function AuthorAvatar({ author_id }: { author_id: string }) {
+export function AuthorAvatar({ author_id }: { author_id: string }) {
   const { authorDetails, loading: authorLoading, error: authorError } = useUserCache(author_id)
 
   return (
-    <Link href={`#`} className="w-[72px]  h-fit px-2.5 user-link">
+    <Link href={`#`} className="w-[72px]  h-fit px-1 user-link">
       {
         authorDetails && authorDetails.avatar 
         && <img className="rounded-full bg-black hover:opacity-70 w-12 h-12 user-link" src={authorDetails.avatar} />

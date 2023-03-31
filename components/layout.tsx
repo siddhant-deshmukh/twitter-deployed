@@ -1,4 +1,5 @@
 import { AuthContext } from "@/context/authContext"
+import { IUser } from "@/models/User"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { ReactNode, useContext, useState } from "react"
@@ -24,15 +25,15 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className=" flex h-full w-auto mx-auto xl:mx-0 xl:w-full overflow-y-auto"
         >
           <div className="hidden sm:block sticky top-0 left-0 side-header">
-            <SideNavbar />
+            <SideNavbar authState={authState} />
           </div>
           <TopNavBar />
           <main
             className="flex w-screen mx-auto  sm:w-[598px] sm:mx-0  pt-8 sm:pt-0 main-content"
-          > 
-            {
+          >
+            {/* {
               JSON.stringify(authState)
-            }
+            } */}
             {children}
 
           </main>
@@ -42,7 +43,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     )
   }
 }
-function SideNavbar() {
+function SideNavbar({ authState }: { authState: IUser }) {
   const NavBarElements: {
     href?: string,
     text: string,
@@ -59,8 +60,8 @@ function SideNavbar() {
   const router = useRouter();
 
   return (
-    <header className="ml-auto hidden sm:flex border-r border-r-gray-200 flex-col px-2 xl:px-4 py-2   h-full justify-between  sm:w-[68px] xl:w-64 ">
-      <div className="flex flex-col">
+    <header className="ml-auto hidden sm:flex border-r  border-r-gray-200 flex-col px-1.5 xl:px-4 py-2   h-full justify-between  sm:w-[68px] xl:w-[272px] ">
+      <div className="flex flex-col px-1">
         <Link href={'/home'} className="p-2 mx-1 hover:bg-blue-50 w-fit rounded-full">
           <TweetIcon fill={'#1D9BF0'} />
         </Link>
@@ -85,7 +86,7 @@ function SideNavbar() {
             <BookmarksSVG fill='none' strokeWidth="1.75" />
             <span className="px-3 hidden xl:block" >Bookmarks</span>
           </Link>
-          <Link href='/#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+          <Link href={`/user/${authState._id}`} className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <ProfileSVG fill='none' strokeWidth="1.75" />
             <span className="px-3 hidden xl:block">Profile</span>
           </Link>
@@ -94,7 +95,10 @@ function SideNavbar() {
             <span className="px-3 hidden xl:block" >More</span>
           </Link>
         </ul>
-        <Link className="xl:flex  items-center py-3 px-3 w-fit rounded-full font-medium  text-white   bg-[#1D9BF0] xl:w-full" href="?compose=tweet" as="/compose/tweet">
+        < Link 
+          className="xl:flex  items-center py-3 px-3 w-fit rounded-full font-medium  text-white   bg-[#1D9BF0] xl:w-full" 
+          href="?compose=tweet" 
+          as="/compose/tweet">
           <span className="hidden w-full xl:block xl:px-6 text-center">Tweet</span>
           <svg viewBox="0 0 24 24" aria-hidden="true" fill="white" className="block xl:hidden w-6 h-6  mx-auto">
             <path d="M23 3c-6.62-.1-10.38 2.421-13.05 6.03C7.29 12.61 6 17.331 6 22h2c0-1.007.07-2.012.19-3H12c4.1 0 7.48-3.082 7.94-7.054C22.79 10.147 23.17 6.359 23 3zm-7 8h-1.5v2H16c.63-.016 1.2-.08 1.72-.188C16.95 15.24 14.68 17 12 17H8.55c.57-2.512 1.57-4.851 3-6.78 2.16-2.912 5.29-4.911 9.45-5.187C20.95 8.079 19.9 11 16 11zM4 9V6H1V4h3V1h2v3h3v2H6v3H4z">
@@ -103,21 +107,21 @@ function SideNavbar() {
         </Link>
       </div>
 
-      <div className="flex flex-col px-1 space-y-2">
-        <button className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+      <button className="xl:flex space-x-3 items-center p-2.5 w-full rounded-full font-medium hover:bg-gray-200  xl:w-full">
+        {
+          authState && authState.avatar
+          && <img className="rounded-full bg-black hover:opacity-70 w-12 h-12 user-link" src={authState.avatar} />
+        }
+        {
+          (!authState || !authState.avatar) && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-12 h-12 user-link border border-black rounded-full">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
           </svg>
-
-          <span className="px-3 hidden xl:block" >Dark Mode</span>
-        </button>
-        <button className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-          </svg>
-          <span className="px-3 hidden xl:block" >Logout</span>
-        </button>
-      </div>
+        }
+        <div className="flex flex-col">
+          <div className="user-link w-fit text-base font-bold hover:underline">{authState.name}</div>
+          <div className="user-link w-fit text-sm  text-gray-500">@{authState?.user_name}</div>
+        </div>
+      </button>
     </header>
   )
 }
