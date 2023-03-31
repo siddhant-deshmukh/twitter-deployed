@@ -41,7 +41,7 @@ const useTweetsCache = (
             setTweet(check)
             setLoading(false)
         } else {
-            fetch(`/api/tweet/${tweet_id}`)
+            fetch(`/api/tweet/${tweet_id}`,{credentials:'include'})
                 .then((res) => res.json())
                 .then(data => {
                     if (data && data._id) {

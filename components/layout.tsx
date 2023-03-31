@@ -1,27 +1,46 @@
+import { AuthContext } from "@/context/authContext"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { ReactNode, useState } from "react"
+import { ReactNode, useContext, useState } from "react"
+import Login from "./Login"
 import { HomeSVG, ExploreSVG, NotificationSVG, MsgsSVG, BookmarksSVG, ProfileSVG, MoreSVG, DangerSVG, TweetIcon } from "./svgElemets"
 
 export default function Layout({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex relative h-screen w-screen ">
-      <div className=" flex h-full w-auto mx-auto xl:mx-0 xl:w-full overflow-y-auto" 
-        >
-        <div className="hidden sm:block sticky top-0 left-0 side-header">
-          <SideNavbar />
-        </div>
-        <TopNavBar />
-        <main 
-          className="flex w-screen mx-auto  sm:w-[598px] sm:mx-0  pt-8 sm:pt-0 main-content"
-          >
-          {children}
-          
-        </main>
-        <BottomNavBar />
+  const { authLoading, authState, setAuthState } = useContext(AuthContext)
+
+  if (authLoading) {
+    return (
+      <div>
+        Loading
       </div>
-    </div>
-  )
+    )
+  } else if (!(authState && authState._id)) {
+    return (
+      <Login />
+    )
+  } else {
+    return (
+      <div className="flex relative h-screen w-screen ">
+        <div className=" flex h-full w-auto mx-auto xl:mx-0 xl:w-full overflow-y-auto"
+        >
+          <div className="hidden sm:block sticky top-0 left-0 side-header">
+            <SideNavbar />
+          </div>
+          <TopNavBar />
+          <main
+            className="flex w-screen mx-auto  sm:w-[598px] sm:mx-0  pt-8 sm:pt-0 main-content"
+          > 
+            {
+              JSON.stringify(authState)
+            }
+            {children}
+
+          </main>
+          <BottomNavBar />
+        </div>
+      </div>
+    )
+  }
 }
 function SideNavbar() {
   const NavBarElements: {

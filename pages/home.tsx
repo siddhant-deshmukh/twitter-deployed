@@ -26,23 +26,26 @@ export default function Home() {
   //     setFeed(data.tweets)
   //   })
   // },[])
-  const { refreshInterval, cache,mutate } = useSWRConfig()
+  const { refreshInterval, cache, mutate } = useSWRConfig()
 
   const fetchTweetFeed = useCallback(async (url: string) => {
-    const data = await fetch(url).then((res) => res.json());
-    const tweetIds = data.map((tweet : ITweet)=>{
+    const data = await fetch(url, { 
+      credentials: 'include',
+      method:'GET' 
+    }).then((res) => res.json());
+    const tweetIds = data.map((tweet: ITweet) => {
 
       const exist_ = cache.get(`tweet/${tweet._id}`)
       //@ts-ignore
-      if(!exist_ || !exist_._id){
+      if (!exist_ || !exist_._id) {
         //@ts-ignore
-        cache.set(`tweet/${tweet._id}`,tweet)
+        cache.set(`tweet/${tweet._id}`, tweet)
       }
       return tweet._id
     })
-    console.log("data",url,tweetIds)
+    console.log("data", url, tweetIds)
     return tweetIds
-  },[cache])
+  }, [cache])
 
   const { data: TweetFeed, mutate: mutateTweetFeed, size, setSize, isValidating, isLoading } = useSWRInfinite(
     (index) => `/api/tweet?skip=${index * pageLength}&limit=${pageLength}`,
@@ -54,10 +57,10 @@ export default function Home() {
     }
   )
   // const TweetFeed = data ? data.concat(...data) : [];
-  const updateTweet = useCallback((tweet_id:string, what: 'liked' | 'retweet') => {
-    let prev  = cache.get(`tweet/${tweet_id}`) as ITweet
-    if(!prev || !prev._id) return;
-    let updated_tweet = {...prev};
+  const updateTweet = useCallback((tweet_id: string, what: 'liked' | 'retweet') => {
+    let prev = cache.get(`tweet/${tweet_id}`) as ITweet
+    if (!prev || !prev._id) return;
+    let updated_tweet = { ...prev };
     if (what === 'liked') {
       updated_tweet = {
         ...updated_tweet,
@@ -74,8 +77,8 @@ export default function Home() {
       }
     }
     //@ts-ignore
-    cache.set(`tweet/${tweet_id}`,updated_tweet)
-  
+    cache.set(`tweet/${tweet_id}`, updated_tweet)
+
   }, [cache])
 
   useEffect(() => {
@@ -91,7 +94,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <h1 className='flex w-full space-x-10 p-3 sticky top-0 opacity-90 bg-white'>
-        
+
         <span className='text-xl font-semibold'>
           Home
         </span>
@@ -104,7 +107,7 @@ export default function Home() {
             return page.map((tweet_id: string, indexNum) => {
               return <div key={tweet_id}>
 
-                {tweet_id && <Tweet tweet_id={tweet_id}  />}
+                {tweet_id && <Tweet tweet_id={tweet_id} />}
               </div>
             })
           })

@@ -27,12 +27,12 @@ export async function getUserSession(req: NextApiRequest, res: NextApiResponse) 
         return user
     } catch (error) {
         console.log(error)
-        res.setHeader('Set-Cookie', serialize('auth-token', '', {
-            httpOnly: true,
-            maxAge: 0,
-            sameSite: 'none',
-            path:'/'
-        }))
+        // res.setHeader('Set-Cookie', serialize('auth-token', '', {
+        //     httpOnly: true,
+        //     maxAge: 0,
+        //     sameSite: 'none',
+        //     path:'/'
+        // }))
         return null;
     }
 }

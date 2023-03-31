@@ -4,12 +4,15 @@ import dbConnect from '../../lib/dbConnect'
 import mongoose from 'mongoose'
 import Tweet, { ITweet } from '../../models/Tweet'
 import User from '../../models/User'
+import { getUserSession } from '@/lib/getUserFromToken'
+import jwt from 'jsonwebtoken'
+import { serialize } from 'cookie'
 
 type Data = ITweet[]
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse
 ) {
 
   const {
@@ -18,32 +21,24 @@ export default async function handler(
   } = req
   await dbConnect()
 
-  const { skip, limit } = req.query
-  // console.log(skip,limit)
-  // console.log(`${(skip)?Number(skip):0}`,`${(limit)?Number(skip):5}`)
-  const tweets = await Tweet.aggregate([
-    { $skip: (skip)?Number(skip):0 },
-    { $limit:(limit)?Number(limit):5 },
-    { $lookup:
-      {
-        from: "users",
-        localField: "author",
-        foreignField: "_id",
-        pipeline:[
-          {$project : {avatar : 1, user_name: 1, name : 1, about: 1}}
-        ],
-
-        as: "authorDetails"
-      }
-    },
-    { $set : {
-      authorDetails : { $arrayElemAt : ["$authorDetails",0] },
-      
-    }}
-  ])
-  console.log('was here',skip,limit)
-  if(limit === '1'){
-    return res.status(200).json(tweets || {})
+  const user = await getUserSession(req, res)
+  if (!user) {
+    // return res.status(401).json({ msg: 'error in token!!' })
+    console.log("Getting temp")
+    let temp_user = await User.findById('64219d64a6a5b870d5753c02').select({accounts : 0})
+    if (temp_user && temp_user._id) {
+      const token = jwt.sign({ _id: temp_user._id.toString(), email: temp_user.email }, process.env.TOKEN_KEY || 'zhingalala', { expiresIn: '2h' })
+      res.setHeader('Set-Cookie', serialize('auth-token', token, {
+        httpOnly: false,
+        maxAge: 60 * 60 * 100000,
+        sameSite: 'strict',
+        path: '/'
+      }))
+      return res.status(200).json(temp_user)
+    }else{
+      return res.status(500).json({msg:'Some error occured!'})
+    }
   }
-  res.status(200).json(tweets)
+
+  return res.status(200).json(user)
 }

@@ -13,7 +13,7 @@ type Data = IUser | { msg: string }
 
 export default async function handler(
     req: NextApiRequest,
-    res: NextApiResponse<Data>
+    res: NextApiResponse
 ) {
 
     const {
@@ -28,7 +28,7 @@ export default async function handler(
 
     if (method === 'POST') {
         const { password, user_name } = body
-        console.log(password,user_name)
+        // console.log(password,user_name)
         if (typeof user_name !== 'string' || typeof password !== 'string' ||
             user_name.length > 10 || user_name.length < 2 ||
             password.length < 5 || password.length > 20) {
@@ -39,6 +39,7 @@ export default async function handler(
             if (!(check_username && check_username[0])) {
                 return res.status(404).json({ msg: 'User name doesn`t exist' })
             }
+            //@ts-ignore
             let actual_password = check_username[0].accounts.get('password').password
             console.log(actual_password)
             if (actual_password) {
@@ -49,7 +50,7 @@ export default async function handler(
                 res.setHeader('Set-Cookie', serialize('auth-token', token, {
                     httpOnly: true,
                     maxAge: 60 * 60 * 100000,
-                    sameSite: 'none',
+                    sameSite: 'strict',
                     path:'/'
                 }))
                 return res.status(201).json(token)

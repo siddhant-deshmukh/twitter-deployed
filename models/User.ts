@@ -9,15 +9,7 @@ export interface IUserCreate{
     about?:string,
 
     accounts:{
-        google?:{
-            sub?:string,
-        },
-        password?:{
-            password:string,
-        },
-        github?:{
-            sub?:string,
-        }
+        [key : string] : { sub? : string, password? : string}
     },
     dob?:Date,
 }

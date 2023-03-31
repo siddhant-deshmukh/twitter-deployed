@@ -42,7 +42,7 @@ const useUserCache = (
             setAuthor(check)
             setLoading(false)
         } else {
-            fetch(`/api/user/${author_id}`)
+            fetch(`/api/user/${author_id}`,{credentials:'include'})
                 .then((res) => res.json())
                 .then(data => {
                     if (data && data._id) {
