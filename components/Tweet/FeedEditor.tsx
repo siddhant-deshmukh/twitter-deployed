@@ -9,7 +9,7 @@ export function FeedTweetEditor({ }) {
   const [text, setText] = useState<string>('')
   const { refreshInterval, cache, mutate } = useSWRConfig()
   const [mediaFiles,setMediaFiles] = useState([])
-
+ 
   const handleMediaSubmitBtn = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     // console.log(e?.target?.files)
     if (!e || !e.target || !e.target.files || !e.target.files.length) {
