@@ -44,6 +44,20 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
         <div className="text-base font-normal text-left">
           {tweet.text}
         </div>
+        {
+          tweet.media && tweet.media.length > 0 &&
+          <div className={` my-2
+              ${(tweet.media.length > 1) ? 'grid  grid-cols-2 h-96' : ''} 
+              ${(tweet.media.length > 2) ? 'grid-rows-2' : ''} `}>
+            {
+              tweet.media.map((ele, index) => {
+                return <div className={`w-full h-full rounded-xl overflow-hidden relative ${(tweet.media?.length === 3 && index === 0) ? 'row-span-2' : ''} `} key={ele.url}>
+                  <img src={ele.url} className="w-full h-full max-h-[600px]" />
+                </div>
+              })
+            }
+          </div>
+        }
         <ul className="flex justify-between text-gray-500">
           <li className="w-full">
             <button className="w-fit items-center flex justify-start space-x-1 pr-4 py-2  group hover:text-blue-700 tweet-btn">
@@ -114,7 +128,7 @@ export function AuthorAvatar({ author_id }: { author_id: string }) {
   return (
     <Link href={`#`} className="w-[72px]  h-fit px-1 user-link">
       {
-        authorDetails && authorDetails.avatar 
+        authorDetails && authorDetails.avatar
         && <img className="rounded-full bg-black hover:opacity-70 w-12 h-12 user-link" src={authorDetails.avatar} />
       }
       {

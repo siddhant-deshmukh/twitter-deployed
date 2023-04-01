@@ -1,4 +1,5 @@
 import { AuthContext } from "@/context/authContext";
+import { IMedia } from "@/models/Media";
 import { ITweet } from "@/models/Tweet";
 import { useCallback, useContext, useState } from "react";
 import { useSWRConfig } from "swr";
@@ -8,7 +9,7 @@ export function FeedTweetEditor({ }) {
   const { authState } = useContext(AuthContext)
   const [text, setText] = useState<string>('')
   const { refreshInterval, cache, mutate } = useSWRConfig()
-  const [mediaFiles,setMediaFiles] = useState([])
+  const [mediaFiles,setMediaFiles] = useState<IMedia[]>([])
  
   const handleMediaSubmitBtn = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     // console.log(e?.target?.files)
@@ -16,12 +17,13 @@ export function FeedTweetEditor({ }) {
       console.error("Error in event of handleSelectingMediaBtn")
       return
     }
-    let media_ : any[] = []
+    let media_ : IMedia[] = []
     for (let i = 0; i < e?.target?.files?.length; i++) {
       let file = e?.target?.files[i]
+      // console.log(i,file)
       let url = URL.createObjectURL(file)
       //@ts-ignore
-      media_.push({ size: file.size, type: file.type, url, file })
+      media_.push({ size: file.size, type: file.type, url, key:i.toString() })
     }
     
     setMediaFiles((prev)=>{
@@ -35,12 +37,12 @@ export function FeedTweetEditor({ }) {
 
   return (
     <div
-      className="flex w-full space-x-2 px-2 pt-5 border border-gray-200 "
+      className="flex w-full space-x-2 px-5 pt-5 border border-gray-200 "
     >
       {
         authState?._id && <AuthorAvatar author_id={authState._id.toString()} />
       }
-      <div className="w-full relative mt-2 mr-3">
+      <div className="w-full relative mt-2 mr-3 ">
         {<div
           id="tweet-editor-feed"
           contentEditable='true'
@@ -77,7 +79,7 @@ export function FeedTweetEditor({ }) {
                       })
                     }}
                     >X</button>
-                  <img src={ele.url} className="w-full h-full" />
+                  <img src={ele.url} className="w-full h-full max-h-[600px]" />
                 </div>
               })
             }
@@ -170,6 +172,7 @@ export function FeedTweetEditor({ }) {
                 num_views: 0,
                 author: authState?._id.toString(),
                 text,
+                media:mediaFiles,
                 //@ts-ignore
                 time: Date.now(),
                 have_liked: false,

@@ -17,13 +17,27 @@ export function TweetComponent({ tweet_id }: { tweet_id: string }) {
         <div className="w-full">
           {
             tweet._id &&
-            <AuthorDetails author_id={tweet.author}/>
+            <AuthorDetails author_id={tweet.author} />
           }
         </div>
         <div className="text-base font-normal text-left py-3">
           <div>
             {tweet.text}
           </div>
+          {
+            tweet.media && tweet.media.length > 0 &&
+            <div className={` my-2 
+              ${(tweet.media.length > 1) ? 'grid  grid-cols-2 h-96' : ''} 
+              ${(tweet.media.length > 2) ? 'grid-rows-2' : ''} `}>
+              {
+                tweet.media.map((ele, index) => {
+                  return <div className={`w-full h-full rounded-xl overflow-hidden relative ${(tweet.media?.length === 3 && index === 0) ? 'row-span-2' : ''} `} key={ele.url}>
+                    <img src={ele.url} className="w-full h-full max-h-[600px]" />
+                  </div>
+                })
+              }
+            </div>
+          }
           <div className="flex space-x-3 pt-2">
             <div className="flex ">
               <time className="text-gray-500" dateTime={tweet.time}>5:39 PM · Mar 27, 2023</time>
@@ -105,7 +119,7 @@ export function TweetComponent({ tweet_id }: { tweet_id: string }) {
   );
 }
 
-function AuthorDetails({author_id} : {author_id:string}) {
+function AuthorDetails({ author_id }: { author_id: string }) {
   const { authorDetails, loading: authorLoading, error: authorError } = useUserCache(author_id)
 
   return (

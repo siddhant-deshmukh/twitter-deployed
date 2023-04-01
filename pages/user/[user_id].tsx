@@ -2,7 +2,13 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import useUserCache from '@/hooks/useUserCache'
 import UserDetails from '@/components/UserDetails'
-
+import { useSWRConfig } from 'swr'
+import { useCallback, useContext, useState } from 'react'
+import { ITweet } from '@/models/Tweet'
+import useSWR from 'swr'
+import useSWRInfinite from "swr/infinite";
+import { AuthContext } from '@/context/authContext'
+import Tweet from '@/components/Tweet/FeedTweetComponent'
 
 export default function UserPage() {
     const router = useRouter()
@@ -27,7 +33,10 @@ export default function UserPage() {
         )
     } else {
         return (
-            <UserInfo author_id={user_id} />
+            <div>
+                <UserInfo author_id={user_id} />
+                <UserTweetFeed author_id={user_id} />
+            </div>
         )
     }
 }
@@ -68,9 +77,116 @@ function UserInfo({ author_id }: { author_id: string }) {
               } */}
             </div>
         )
-    }else{
+    } else {
         return (
             <div></div>
         )
     }
+}
+function UserTweetFeed({ author_id }: { author_id: string }) {
+    const { authorDetails, loading: authorLoading, error: authorError } = useUserCache(author_id as string | undefined)
+    const router = useRouter()
+    const { refreshInterval, cache, mutate } = useSWRConfig()
+    const { authState } = useContext(AuthContext)
+    const pageLength = 5
+    const [feedType,setType] = useState<'tweet' | 'like' | 'media'>('tweet')
+    const fetchTweetFeed = useCallback(async (url: string) => {
+        const data = await fetch(url, {
+            credentials: 'include',
+            method: 'GET'
+        }).then((res) => res.json());
+        const tweetIds = data.map((tweet: ITweet) => {
+
+            const exist_ = cache
+            //@ts-ignore
+            if (!exist_ || !exist_._id) {
+                //@ts-ignore
+                cache.set(`tweet/${tweet._id}`, tweet)
+            }
+            return tweet._id
+        })
+        console.log("data", url, tweetIds)
+        return tweetIds
+    }, [cache])
+    const { data: ownTweets } = useSWR('/own/tweetfeed', (str: string) => {
+        if (author_id === authState?._id.toString()) {
+            const feed = cache.get('own/tweetfeed')
+            return feed
+        }
+        return []
+    })
+
+    const { data: TweetFeed, mutate: mutateTweetFeed, size, setSize, isValidating, isLoading } = useSWRInfinite(
+        (index) => `/api/user/${author_id}/feed?skip=${index * pageLength}&limit=${pageLength}`,
+        fetchTweetFeed,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
+    const { data: LikedTweetFeed } = useSWRInfinite(
+        (index) => `/api/user/${author_id}/feed?skip=${index * pageLength}&limit=${pageLength}&type=liked`,
+        fetchTweetFeed,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
+    return (
+        <div className='w-full'>
+            <div className='flex w-full justify-between h-14 font-medium text-gray-600'>
+                <button 
+                    className={`w-full relative hover:bg-gray-200 ${(feedType === 'tweet')?"text-black":''}`}
+                    onClick={(event)=>{event.preventDefault(); setType('tweet')}}>
+                    Tweets 
+                    <div className={`absolute bottom-0 left-1/3 w-1/3 h-1 rounded-sm bg-blue-400 ${(feedType !== 'tweet')?"hidden":'block'}`}></div>
+                </button>
+                <button 
+                    className={`w-full relative hover:bg-gray-200 ${(feedType === 'like')?"text-black":''}`}
+                    onClick={(event)=>{event.preventDefault(); setType('like')}}>
+                    Liked
+                    <div className={`absolute bottom-0 left-1/3 w-1/3 h-1 rounded-sm bg-blue-400 ${(feedType !== 'like')?"hidden":'block'}`}></div>
+                </button>
+            </div>
+            {/* {
+                JSON.stringify(TweetFeed)
+            } */}
+            {
+                feedType === 'tweet' && ownTweets &&
+                //@ts-ignore
+                ownTweets.map((tweet_id: string, indexNum) => {
+                    return <div key={tweet_id}>
+
+                        {tweet_id && <Tweet tweet_id={tweet_id} />}
+                    </div>
+                })
+            }
+            {
+                feedType === 'tweet' && TweetFeed &&
+                TweetFeed.map((page: string[] | [], pageNum) => {
+                    if (!page) return <div></div>
+                    return page.map((tweet_id: string, indexNum) => {
+                        return <div key={tweet_id}>
+
+                            {tweet_id && <Tweet tweet_id={tweet_id} />}
+                        </div>
+                    })
+                })
+            }
+            {
+                feedType === 'like' && LikedTweetFeed &&
+                LikedTweetFeed.map((page: string[] | [], pageNum) => {
+                    if (!page) return <div></div>
+                    return page.map((tweet_id: string, indexNum) => {
+                        return <div key={tweet_id}>
+
+                            {tweet_id && <Tweet tweet_id={tweet_id} />}
+                        </div>
+                    })
+                })
+            }
+        </div>
+    )
 }

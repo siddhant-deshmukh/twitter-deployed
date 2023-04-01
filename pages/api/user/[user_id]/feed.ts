@@ -204,7 +204,7 @@ export default async function handler(
     } else {
         tweets = await Tweet.aggregate([
             { $match: { author: userid } },
-            { $sort : { "$time" : -1 } },
+            { $sort : { time : -1 } },
             { $skip: (skip) ? Number(skip) : 0 },
             { $limit: (limit) ? Number(limit) : 5 },
             {

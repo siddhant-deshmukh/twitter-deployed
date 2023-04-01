@@ -1,4 +1,5 @@
 import mongoose, { Types } from "mongoose";
+import { IMedia } from "./Media";
 
 export interface ITweetAttachments {
   content_type: "media" | "tweet" | null,
@@ -44,6 +45,7 @@ export interface ITweet {
   //   avatar?: string,
   //   about?: string
   // },
+  media? : IMedia[],
   have_retweeted?: boolean,
   have_liked?: boolean,
 }
