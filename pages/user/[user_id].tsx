@@ -41,7 +41,7 @@ export default function UserPage() {
     }
 }
 
-function UserInfo({ author_id }: { author_id: string }) {
+function UserInfo({ author_id }: { author_id: string | string[] }) {
     const { authorDetails, loading: authorLoading, error: authorError } = useUserCache(author_id as string | undefined)
     const router = useRouter()
 
@@ -83,7 +83,7 @@ function UserInfo({ author_id }: { author_id: string }) {
         )
     }
 }
-function UserTweetFeed({ author_id }: { author_id: string }) {
+function UserTweetFeed({ author_id }: { author_id: string | string[] }) {
     const { authorDetails, loading: authorLoading, error: authorError } = useUserCache(author_id as string | undefined)
     const router = useRouter()
     const { refreshInterval, cache, mutate } = useSWRConfig()

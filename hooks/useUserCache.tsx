@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useSWRConfig } from 'swr'
 
 const useUserCache = (
-    author_id?: string | string[]
+    author_id?: string 
 ) => {
     const [author, setAuthor] = useState<IUser | undefined>(undefined)
     const [loading, setLoading] = useState<boolean>(true)

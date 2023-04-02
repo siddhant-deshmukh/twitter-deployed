@@ -26,7 +26,7 @@ export function TweetComponent({ tweet_id, tweet, updateTweet }: {
           }
         </div>
         <div className="text-base font-normal text-left py-3">
-          <div>
+          <div className="whitespace-pre-line">
             {tweet.text}
           </div>
           {

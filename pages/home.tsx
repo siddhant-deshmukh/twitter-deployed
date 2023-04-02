@@ -92,9 +92,9 @@ export default function Home() {
       </h1>
       <div className="">
         < FeedTweetEditor mutateOwnTweets={mutateOwnTweets}/>
-        {
+        {/* {
           JSON.stringify(ownTweets)
-        }
+        } */}
         {
           ownTweets &&
           //@ts-ignore
