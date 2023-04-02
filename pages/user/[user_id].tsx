@@ -89,7 +89,7 @@ function UserTweetFeed({ author_id }: { author_id: string }) {
     const { refreshInterval, cache, mutate } = useSWRConfig()
     const { authState } = useContext(AuthContext)
     const pageLength = 5
-    const [feedType,setType] = useState<'tweet' | 'like' | 'media'>('tweet')
+    const [feedType, setType] = useState<'tweet' | 'like' | 'media'>('tweet')
     const fetchTweetFeed = useCallback(async (url: string) => {
         const data = await fetch(url, {
             credentials: 'include',
@@ -137,22 +137,25 @@ function UserTweetFeed({ author_id }: { author_id: string }) {
     return (
         <div className='w-full'>
             <div className='flex w-full justify-between h-14 font-medium text-gray-600'>
-                <button 
-                    className={`w-full relative hover:bg-gray-200 ${(feedType === 'tweet')?"text-black":''}`}
-                    onClick={(event)=>{event.preventDefault(); setType('tweet')}}>
-                    Tweets 
-                    <div className={`absolute bottom-0 left-1/3 w-1/3 h-1 rounded-sm bg-blue-400 ${(feedType !== 'tweet')?"hidden":'block'}`}></div>
+                <button
+                    className={`w-full relative hover:bg-gray-200 ${(feedType === 'tweet') ? "text-black" : ''}`}
+                    onClick={(event) => { event.preventDefault(); setType('tweet') }}>
+                    Tweets
+                    <div className={`absolute bottom-0 left-1/3 w-1/3 h-1 rounded-sm bg-blue-400 ${(feedType !== 'tweet') ? "hidden" : 'block'}`}></div>
                 </button>
-                <button 
-                    className={`w-full relative hover:bg-gray-200 ${(feedType === 'like')?"text-black":''}`}
-                    onClick={(event)=>{event.preventDefault(); setType('like')}}>
+                <button
+                    className={`w-full relative hover:bg-gray-200 ${(feedType === 'like') ? "text-black" : ''}`}
+                    onClick={(event) => { event.preventDefault(); setType('like') }}>
                     Liked
-                    <div className={`absolute bottom-0 left-1/3 w-1/3 h-1 rounded-sm bg-blue-400 ${(feedType !== 'like')?"hidden":'block'}`}></div>
+                    <div className={`absolute bottom-0 left-1/3 w-1/3 h-1 rounded-sm bg-blue-400 ${(feedType !== 'like') ? "hidden" : 'block'}`}></div>
                 </button>
             </div>
-            {/* {
-                JSON.stringify(TweetFeed)
-            } */}
+            <div>
+                Here check this out!
+                {
+                    JSON.stringify(ownTweets)
+                }
+            </div>
             {
                 feedType === 'tweet' && ownTweets &&
                 //@ts-ignore

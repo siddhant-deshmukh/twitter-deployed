@@ -1,9 +1,13 @@
 import useTweetsCache from "@/hooks/useTweetsCache";
 import useUserCache from "@/hooks/useUserCache";
+import { ITweet } from "@/models/Tweet";
 import Link from "next/link";
 
-export function TweetComponent({ tweet_id }: { tweet_id: string }) {
-  const { tweet, loading, updateTweet } = useTweetsCache(tweet_id)
+export function TweetComponent({ tweet_id, tweet, updateTweet }: { 
+  tweet_id: string, 
+  tweet: ITweet | undefined,
+  updateTweet: (what: "liked" | "retweeted" | "add-comment") => void
+}) {
   if (!tweet) {
     return <div>
     </div>
@@ -12,8 +16,9 @@ export function TweetComponent({ tweet_id }: { tweet_id: string }) {
   return (
     <div
       id={`${tweet._id}`}
-      className="flex w-full px-2 py-1 border-b border-b-gray-200 border-r  border-r-gray-200 ">
-      <div className="w-full flex flex-col p-3 ">
+      className="flex w-full px-2 py-1 border-r  border-r-gray-200 ">
+        
+      <div className="w-full flex flex-col px-3 pt-3 ">
         <div className="w-full">
           {
             tweet._id &&

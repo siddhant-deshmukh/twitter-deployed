@@ -126,7 +126,7 @@ export function AuthorAvatar({ author_id }: { author_id: string }) {
   const { authorDetails, loading: authorLoading, error: authorError } = useUserCache(author_id)
 
   return (
-    <Link href={`#`} className="w-[72px]  h-fit px-1 user-link">
+    <Link href={`#`} className="w-[68px] px-2 h-fit  user-link">
       {
         authorDetails && authorDetails.avatar
         && <img className="rounded-full bg-black hover:opacity-70 w-12 h-12 user-link" src={authorDetails.avatar} />

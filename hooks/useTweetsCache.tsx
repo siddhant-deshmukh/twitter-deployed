@@ -37,6 +37,7 @@ const useTweetsCache = (
         setLoading(true)
         //@ts-ignore
         let check: ITweet | undefined = cache.get(`tweet/${tweet_id}`)
+        console.log('inside tweet_id',check)
         if (check && check._id) {
             setTweet(check)
             setLoading(false)
@@ -59,7 +60,7 @@ const useTweetsCache = (
                     setLoading(false)
                 })
         }
-    }, [])
+    }, [tweet_id])
     return {
         tweet,
         updateTweet,

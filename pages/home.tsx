@@ -108,6 +108,9 @@ export default function Home() {
       <div className="">
         < FeedTweetEditor />
         {
+          JSON.stringify(ownTweets)
+        }
+        {
           ownTweets &&
           //@ts-ignore
           ownTweets.map((tweet_id: string, indexNum) => {

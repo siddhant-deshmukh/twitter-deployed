@@ -61,7 +61,7 @@ const useUserCache = (
                     setLoading(false)
                 })
         }
-    }, [])
+    }, [author_id])
     return {
         authorDetails : author,
         loading,
