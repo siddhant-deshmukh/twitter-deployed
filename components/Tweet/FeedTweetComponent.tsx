@@ -41,9 +41,9 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
             <AuthorDetails author_id={tweet.author} />
           }
         </div>
-        <div className="text-base font-normal text-left">
+        <p className="text-base font-normal text-left whitespace-pre-line">
           {tweet.text}
-        </div>
+        </p>
         {
           tweet.media && tweet.media.length > 0 &&
           <div className={` my-2

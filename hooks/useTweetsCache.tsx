@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useSWRConfig } from 'swr'
 
 const useTweetsCache = (
-    tweet_id: string
+    tweet_id?: string | string[]
 ) => {
     const [tweet, setTweet] = useState<ITweet | undefined>(undefined)
     const [loading, setLoading] = useState<boolean>(true)
@@ -35,6 +35,7 @@ const useTweetsCache = (
     }
     useEffect(() => {
         setLoading(true)
+        if(!tweet_id || typeof tweet_id !== 'string') return;
         //@ts-ignore
         let check: ITweet | undefined = cache.get(`tweet/${tweet_id}`)
         console.log('inside tweet_id',check)

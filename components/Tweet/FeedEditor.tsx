@@ -2,16 +2,18 @@ import { AuthContext } from "@/context/authContext";
 import useUserCache from "@/hooks/useUserCache";
 import { IMedia } from "@/models/Media";
 import { ITweet } from "@/models/Tweet";
-import { useCallback, useContext, useState } from "react";
-import { useSWRConfig } from "swr";
+import { useCallback, useContext, useRef, useState } from "react";
+import { KeyedMutator, State,  useSWRConfig } from "swr";
 import { AuthorAvatar } from "./FeedTweetComponent";
 
-export function FeedTweetEditor({ }) {
+export function FeedTweetEditor({ mutateOwnTweets } :{ 
+  mutateOwnTweets: KeyedMutator<State<any, any> | undefined>
+ }) {
   const { authState } = useContext(AuthContext)
   const [text, setText] = useState<string>('')
   const { refreshInterval, cache, mutate } = useSWRConfig()
   const [mediaFiles, setMediaFiles] = useState<IMedia[]>([])
-
+  const newTweetEditor = useRef<HTMLInputElement | null>(null);
   const handleMediaSubmitBtn = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     // console.log(e?.target?.files)
     if (!e || !e.target || !e.target.files || !e.target.files.length) {
@@ -44,13 +46,17 @@ export function FeedTweetEditor({ }) {
         authState?._id && <AuthorAvatar author_id={authState._id.toString()} />
       }
       <div className="w-full relative mt-2 mr-3 ">
+        {/* {
+          text
+        } */}
         {<div
           id="tweet-editor-feed"
           contentEditable='true'
-          className="h-fit w-full relative outline-none text-xl"
+          ref={newTweetEditor}
+          className="h-fit w-full relative outline-none text-xl inline-block "
           onInput={(event) => {
             //@ts-ignore
-            setText(event.currentTarget.textContent);
+            setText(event.currentTarget.innerHTML);
           }}
         >
 
@@ -163,6 +169,7 @@ export function FeedTweetEditor({ }) {
               event.preventDefault();
               if (!authState) return;
               const prev = cache.get('own/tweetfeed')
+              let text_ = text.replaceAll('<br>','\n').replaceAll('&nbsp','')
               let new_tweet: ITweet = {
                 _id: 'new_' + Math.floor(Math.random() * 100000).toString(),
                 parent_tweet: null,
@@ -172,24 +179,33 @@ export function FeedTweetEditor({ }) {
                 num_retweet: 0,
                 num_views: 0,
                 author: authState?._id.toString(),
-                text,
+                text : text_,
                 media: mediaFiles,
                 //@ts-ignore
                 time: Date.now(),
                 have_liked: false,
                 have_retweeted: false,
               }
+              let new_ = []
               if (prev && Array.isArray(prev)) {
-                let new_ = [new_tweet._id].concat(prev)
-                //@ts-ignore
-                cache.set('own/tweetfeed', new_)
+                new_ = [new_tweet._id].concat(prev)
               } else {
-                //@ts-ignore
-                cache.set('own/tweetfeed', [new_tweet._id])
+                new_ = [new_tweet._id]
               }
+              //@ts-ignore
+              cache.set('own/tweetfeed', new_)
               //@ts-ignore
               cache.set(`tweet/${new_tweet._id}`, new_tweet)
               // console.log('!!!!!!!',new_tweet,cache.get(`tweet/${new_tweet._id}`),cache.get('own/tweetfeed'))
+              //@ts-ignore
+              mutateOwnTweets(new_)
+              setMediaFiles([])
+              setText('')
+              // let editor = document.getDocumentB('tweet-editor-feed')
+              if(newTweetEditor.current?.innerText){
+                //@ts-ignore
+                newTweetEditor.current.textContent = ''
+              }
             }}>
             Tweet
           </button>

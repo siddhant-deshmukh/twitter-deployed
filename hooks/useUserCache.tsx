@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useSWRConfig } from 'swr'
 
 const useUserCache = (
-    author_id?: string
+    author_id?: string | string[]
 ) => {
     const [author, setAuthor] = useState<IUser | undefined>(undefined)
     const [loading, setLoading] = useState<boolean>(true)
@@ -34,6 +34,8 @@ const useUserCache = (
     //     })
     // }
     useEffect(() => {
+        if(!author_id || typeof author_id !== 'string') return;
+
         // console.log("Here to look for user", author_id)
         setLoading(true)
         //@ts-ignore

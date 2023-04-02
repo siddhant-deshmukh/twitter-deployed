@@ -1,33 +1,18 @@
 import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
 import Tweet from '../components/Tweet/FeedTweetComponent'
 import { ITweet } from '@/models/Tweet'
 import { useCallback, useEffect, useState } from 'react'
 import useSWRInfinite from "swr/infinite";
-import { Cache, useSWRConfig } from 'swr'
+import { useSWRConfig } from 'swr'
 import useSWR from 'swr'
 import { FeedTweetEditor } from '@/components/Tweet/FeedEditor'
 // import { SWRConfig } from 'swr'
 
-const inter = Inter({ subsets: ['latin'] })
 
 
 
 const pageLength = 5
 export default function Home() {
-  // const [TweetFeed,setFeed] = useState<ITweet[]>([])
-  // useEffect(()=>{
-  //   fetch(`/api/hello`,{
-  //     method:'GET',
-  //   }).then((res)=>{
-  //     return res.json()
-  //   }).then((data)=>{
-  //     console.log(data)
-  //     setFeed(data.tweets)
-  //   })
-  // },[])
   const { refreshInterval, cache, mutate } = useSWRConfig()
 
   const fetchTweetFeed = useCallback(async (url: string) => {
@@ -49,7 +34,7 @@ export default function Home() {
     return tweetIds
   }, [cache])
 
-  const {data:ownTweets} = useSWR('/own/tweetfeed',(str:string)=>{
+  const {data:ownTweets , mutate:mutateOwnTweets} = useSWR('/own/tweetfeed',(str:string)=>{
     const feed = cache.get('own/tweetfeed')
     return feed
   })
@@ -106,7 +91,7 @@ export default function Home() {
         </span>
       </h1>
       <div className="">
-        < FeedTweetEditor />
+        < FeedTweetEditor mutateOwnTweets={mutateOwnTweets}/>
         {
           JSON.stringify(ownTweets)
         }
