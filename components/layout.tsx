@@ -5,10 +5,16 @@ import { useRouter } from "next/router"
 import { ReactNode, useContext, useState } from "react"
 import Login from "./Login"
 import { HomeSVG, ExploreSVG, NotificationSVG, MsgsSVG, BookmarksSVG, ProfileSVG, MoreSVG, DangerSVG, TweetIcon } from "./svgElemets"
+import { usePathname, useSearchParams } from 'next/navigation';
+import TweetModal from "./modals/TweetModal"
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { authLoading, authState, setAuthState } = useContext(AuthContext)
+  const searchParams =  useSearchParams()
 
+  const openTweetModal = searchParams.has('tweet-modal')
+  const openUsersModal = searchParams.getAll('user-list')
+  console.log('search parameters ', searchParams.has('tweet-modal'))
   if (authLoading) {
     return (
       <div>
@@ -39,11 +45,18 @@ export default function Layout({ children }: { children: ReactNode }) {
           </main>
           <BottomNavBar />
         </div>
+        {
+          openTweetModal && 
+          < TweetModal />
+        }
       </div>
     )
   }
 }
 function SideNavbar({ authState }: { authState: IUser }) {
+  const searchParams =  useSearchParams()
+  const pathname = usePathname();
+
   const NavBarElements: {
     href?: string,
     text: string,
@@ -66,6 +79,11 @@ function SideNavbar({ authState }: { authState: IUser }) {
           <TweetIcon fill={'#1D9BF0'} />
         </Link>
         <ul className="my-4 px-1 flex flex-col space-y-4">
+          <div>
+            {
+              searchParams.get('tweet-modal')
+            }
+          </div>
           <Link href='/home' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <HomeSVG fill='none' strokeWidth="1.75" />
             <span className="px-3 hidden xl:block" >Home</span>
@@ -97,8 +115,9 @@ function SideNavbar({ authState }: { authState: IUser }) {
         </ul>
         < Link 
           className="xl:flex  items-center py-3 px-3 w-fit rounded-full font-medium  text-white   bg-[#1D9BF0] xl:w-full" 
-          href="?compose=tweet" 
-          as="/compose/tweet">
+          href={pathname + '?' + 'tweet-modal'}
+          // as="/compose/tweet"
+          >
           <span className="hidden w-full xl:block xl:px-6 text-center">Tweet</span>
           <svg viewBox="0 0 24 24" aria-hidden="true" fill="white" className="block xl:hidden w-6 h-6  mx-auto">
             <path d="M23 3c-6.62-.1-10.38 2.421-13.05 6.03C7.29 12.61 6 17.331 6 22h2c0-1.007.07-2.012.19-3H12c4.1 0 7.48-3.082 7.94-7.054C22.79 10.147 23.17 6.359 23 3zm-7 8h-1.5v2H16c.63-.016 1.2-.08 1.72-.188C16.95 15.24 14.68 17 12 17H8.55c.57-2.512 1.57-4.851 3-6.78 2.16-2.912 5.29-4.911 9.45-5.187C20.95 8.079 19.9 11 16 11zM4 9V6H1V4h3V1h2v3h3v2H6v3H4z">

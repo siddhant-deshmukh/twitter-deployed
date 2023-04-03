@@ -8,9 +8,6 @@ import useSWR from 'swr'
 import { FeedTweetEditor } from '@/components/Tweet/FeedEditor'
 // import { SWRConfig } from 'swr'
 
-
-
-
 const pageLength = 5
 export default function Home() {
   const { refreshInterval, cache, mutate } = useSWRConfig()
@@ -37,6 +34,8 @@ export default function Home() {
   const {data:ownTweets , mutate:mutateOwnTweets} = useSWR('/own/tweetfeed',(str:string)=>{
     const feed = cache.get('own/tweetfeed')
     return feed
+  },{
+    revalidateOnFocus: true,
   })
   const { data: TweetFeed, mutate: mutateTweetFeed, size, setSize, isValidating, isLoading } = useSWRInfinite(
     (index) => `/api/tweet?skip=${index * pageLength}&limit=${pageLength}`,

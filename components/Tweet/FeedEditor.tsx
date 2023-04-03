@@ -3,12 +3,12 @@ import useUserCache from "@/hooks/useUserCache";
 import { IMedia } from "@/models/Media";
 import { ITweet } from "@/models/Tweet";
 import { useCallback, useContext, useRef, useState } from "react";
-import { KeyedMutator, State,  useSWRConfig } from "swr";
+import { KeyedMutator, State, useSWRConfig } from "swr";
 import { AuthorAvatar } from "./FeedTweetComponent";
 
-export function FeedTweetEditor({ mutateOwnTweets } :{ 
-  mutateOwnTweets: KeyedMutator<State<any, any> | undefined>
- }) {
+export function FeedTweetEditor({ mutateOwnTweets }: {
+  mutateOwnTweets?: KeyedMutator<State<any, any> | undefined>
+}) {
   const { authState } = useContext(AuthContext)
   const [text, setText] = useState<string>('')
   const { refreshInterval, cache, mutate } = useSWRConfig()
@@ -40,58 +40,60 @@ export function FeedTweetEditor({ mutateOwnTweets } :{
 
   return (
     <div
-      className="flex w-full space-x-2 px-5 pt-5 border border-gray-200 "
+      className="flex w-full  space-x-2 px-2 pt-5 border border-gray-200 "
     >
       {
         authState?._id && <AuthorAvatar author_id={authState._id.toString()} />
       }
-      <div className="w-full relative mt-2 mr-3 ">
-        {/* {
+      <div className="w-full relative mt-2 mr-3 flex flex-col h-full justify-between">
+        <div>
+          {/* {
           text
         } */}
-        {<div
-          id="tweet-editor-feed"
-          contentEditable='true'
-          ref={newTweetEditor}
-          className="h-fit w-full relative outline-none text-xl inline-block "
-          onInput={(event) => {
-            //@ts-ignore
-            setText(event.currentTarget.innerHTML);
-          }}
-        >
-
-        </div>}
-        {
-          (text.length <= 0) && <div
-
-            className="absolute top-0 left-0 -z-10  h-fit w-fit text-gray-500  outline-none text-xl"
+          {<div
+            id="tweet-editor-feed"
+            contentEditable='true'
+            ref={newTweetEditor}
+            className=" w-full relative outline-none text-xl inline-block "
+            onInput={(event) => {
+              //@ts-ignore
+              setText(event.currentTarget.innerHTML);
+            }}
           >
-            What is happening?
-          </div>
-        }
-        {
-          mediaFiles && mediaFiles.length > 0 &&
-          <div className={` my-2
+
+          </div>}
+          {
+            (text.length <= 0) && <div
+
+              className="absolute top-0 left-0 -z-10  h-fit w-fit text-gray-500  outline-none text-xl"
+            >
+              What is happening?
+            </div>
+          }
+          {
+            mediaFiles && mediaFiles.length > 0 &&
+            <div className={` my-2
               ${(mediaFiles.length > 1) ? 'grid gap-3 grid-cols-2 h-96' : ''} 
               ${(mediaFiles.length > 2) ? 'grid-rows-2' : ''} `}>
-            {
-              mediaFiles.map((ele, index) => {
-                return <div className={`w-full h-full rounded-xl overflow-hidden relative ${(mediaFiles.length === 3 && index === 0) ? 'row-span-2' : ''} `} key={ele.url}>
-                  <button
-                    className="absolute bg-black opacity-70 text-white rounded-full text-sm py-2 px-3 left-2 top-2"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      setMediaFiles((prev) => {
-                        return prev.slice(0, index).concat(prev.slice(index + 1))
-                      })
-                    }}
-                  >X</button>
-                  <img src={ele.url} className="w-full h-full max-h-[600px]" />
-                </div>
-              })
-            }
-          </div>
-        }
+              {
+                mediaFiles.map((ele, index) => {
+                  return <div className={`w-full h-full rounded-xl overflow-hidden relative ${(mediaFiles.length === 3 && index === 0) ? 'row-span-2' : ''} `} key={ele.url}>
+                    <button
+                      className="absolute bg-black opacity-70 text-white rounded-full text-sm py-2 px-3 left-2 top-2"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        setMediaFiles((prev) => {
+                          return prev.slice(0, index).concat(prev.slice(index + 1))
+                        })
+                      }}
+                    >X</button>
+                    <img src={ele.url} className="w-full h-full max-h-[600px]" />
+                  </div>
+                })
+              }
+            </div>
+          }
+        </div>
         <div className="flex w-full items-center justify-between border-y border-y-gray-100 py-3 mt-5">
           <ul className="flex items-center">
             <label form="input-file-TweetFeed group" className="relative">
@@ -103,7 +105,7 @@ export function FeedTweetEditor({ mutateOwnTweets } :{
                 </svg>
               </button>
               <input
-                multiple id="input-file-TweetFeed" type='file' accept=".jpg, .png, .jpng, .gif" className="absolute text-[0px] hover:cursor-pointer top-0 left-0 w-full h-full overflow-hidden opacity-0 z-50"
+                multiple id="input-file-TweetFeed" type='file' accept=".jpg, .png, .jpng, .gif" className="absolute text-[0px] hover:cursor-pointer top-0 left-0 w-full h-full overflow-hidden opacity-0 z-10"
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                   event.preventDefault();
                   handleMediaSubmitBtn(event)
@@ -169,7 +171,7 @@ export function FeedTweetEditor({ mutateOwnTweets } :{
               event.preventDefault();
               if (!authState) return;
               const prev = cache.get('own/tweetfeed')
-              let text_ = text.replaceAll('<br>','\n').replaceAll('&nbsp','')
+              let text_ = text.replaceAll('<br>', '\n').replaceAll('&nbsp', '')
               let new_tweet: ITweet = {
                 _id: 'new_' + Math.floor(Math.random() * 100000).toString(),
                 parent_tweet: null,
@@ -179,7 +181,7 @@ export function FeedTweetEditor({ mutateOwnTweets } :{
                 num_retweet: 0,
                 num_views: 0,
                 author: authState?._id.toString(),
-                text : text_,
+                text: text_,
                 media: mediaFiles,
                 //@ts-ignore
                 time: Date.now(),
@@ -198,11 +200,11 @@ export function FeedTweetEditor({ mutateOwnTweets } :{
               cache.set(`tweet/${new_tweet._id}`, new_tweet)
               // console.log('!!!!!!!',new_tweet,cache.get(`tweet/${new_tweet._id}`),cache.get('own/tweetfeed'))
               //@ts-ignore
-              mutateOwnTweets(new_)
+              if (mutateOwnTweets) mutateOwnTweets(new_)
               setMediaFiles([])
               setText('')
               // let editor = document.getDocumentB('tweet-editor-feed')
-              if(newTweetEditor.current?.innerText){
+              if (newTweetEditor.current?.innerText) {
                 //@ts-ignore
                 newTweetEditor.current.textContent = ''
               }
@@ -215,12 +217,12 @@ export function FeedTweetEditor({ mutateOwnTweets } :{
   )
 }
 
-export function CommentFeedCommentEditor({user_id, parent_tweet_id} : { user_id? : string, parent_tweet_id:string }) {
+export function CommentFeedCommentEditor({ user_id, parent_tweet_id }: { user_id?: string, parent_tweet_id: string }) {
   const { authState } = useContext(AuthContext)
   const [text, setText] = useState<string>('')
   const { refreshInterval, cache, mutate } = useSWRConfig()
   const [mediaFiles, setMediaFiles] = useState<IMedia[]>([])
-  const { authorDetails : userDetails } = useUserCache(user_id)
+  const { authorDetails: userDetails } = useUserCache(user_id)
 
   const handleMediaSubmitBtn = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     // console.log(e?.target?.files)
@@ -250,7 +252,7 @@ export function CommentFeedCommentEditor({user_id, parent_tweet_id} : { user_id?
     <div
       className="flex w-full relative space-x-1.5 px-1 py-5  border border-gray-50 "
     >
-      <span className="top-0 left-[78px] absolute z-20 text-gray-600 text-sm">
+      <span className="top-0 left-[78px] absolute z-10 text-gray-600 text-sm">
         Replying to <span className="text-blue-400">@{userDetails?.user_name || 'Someone'}</span>
       </span>
       {
@@ -316,7 +318,7 @@ export function CommentFeedCommentEditor({user_id, parent_tweet_id} : { user_id?
                 </svg>
               </button>
               <input
-                multiple id="input-file-TweetFeed" type='file' accept=".jpg, .png, .jpng, .gif" className="absolute text-[0px] hover:cursor-pointer top-0 left-0 w-full h-full overflow-hidden opacity-0 z-50"
+                multiple id="input-file-TweetFeed" type='file' accept=".jpg, .png, .jpng, .gif" className="absolute text-[0px] hover:cursor-pointer top-0 left-0 w-full h-full overflow-hidden opacity-0 z-10"
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                   event.preventDefault();
                   handleMediaSubmitBtn(event)
@@ -421,7 +423,7 @@ export function CommentFeedCommentEditor({user_id, parent_tweet_id} : { user_id?
 
               event.preventDefault();
               if (!authState) return;
-              if(!parent_tweet_id || typeof parent_tweet_id !== 'string') return;
+              if (!parent_tweet_id || typeof parent_tweet_id !== 'string') return;
               const prev = cache.get(`own_comment/${parent_tweet_id}`)
               let new_tweet: ITweet = {
                 _id: 'new_' + Math.floor(Math.random() * 100000).toString(),
