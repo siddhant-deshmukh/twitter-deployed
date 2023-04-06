@@ -5,8 +5,23 @@ import mongoose from 'mongoose'
 import Tweet, { ITweet, ITweetStored } from '../../../models/Tweet'
 import User from '../../../models/User'
 import { getUserSession } from '@/lib/getUserFromToken'
+import Media, { IMedia } from '@/models/Media'
+import { BlobSASPermissions, BlobServiceClient, generateBlobSASQueryParameters, StorageSharedKeyCredential } from '@azure/storage-blob'
 
-type Data = ITweet[] | { msg: string }
+type Data = { tweet: ITweet, SAS_tokens?: string[] } | { msg: string } | ITweet[]
+
+const connectionString = process.env.BLOB_CONNECTION_STRING as string;
+const accountName = process.env.BLOB_ACCOUNT_NAME as string;
+const accountKey = process.env.BLOB_ACCOUNT_KEY as string;
+
+const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+const sharedKeyCredential = new StorageSharedKeyCredential(accountName, accountKey);
+
+const permissions_towrite = new BlobSASPermissions();
+permissions_towrite.create = true;
+permissions_towrite.write = true;
+
+const maxSize = 0.5 * 1024 * 1024;
 
 export default async function handler(
     req: NextApiRequest,
@@ -29,7 +44,7 @@ export default async function handler(
         // console.log(skip,limit)
         // console.log(`${(skip)?Number(skip):0}`,`${(limit)?Number(skip):5}`)
         const tweets = await Tweet.aggregate([
-            { $sort : { time : -1 } },
+            { $sort: { time: -1 } },
             { $skip: (skip) ? Number(skip) : 0 },
             { $limit: (limit) ? Number(limit) : 5 },
             {
@@ -89,6 +104,14 @@ export default async function handler(
                 }
             },
             {
+                $lookup: {
+                    from: 'media',
+                    localField: 'media',
+                    foreignField: '_id',
+                    as: 'media'
+                }
+            },
+            {
                 $set: {
                     authorDetails: { $arrayElemAt: ["$authorDetails", 0] },
                     have_liked: { $cond: [{ $gte: [{ $size: '$have_liked' }, 1] }, true, false] },
@@ -112,7 +135,9 @@ export default async function handler(
     } else if (method === 'POST') {
         const author_id = user._id
 
-        const { text, parent_tweet, attachments } = body
+        const { text, parent_tweet, tweet_attachment, mediaFiles }: {
+            text: string, parent_tweet?: string, tweet_attachment?: string, mediaFiles?: IMedia[]
+        } = body
         if (
             !author_id || !text ||
             typeof text !== 'string' ||
@@ -122,32 +147,144 @@ export default async function handler(
             return res.status(400).json({ msg: 'incorrect data given' })
         }
 
-        const author = await User.findById(author_id)
-        if (!author) return res.status(400).json({ msg: 'incorrect given author_id' })
+        try {
+            const author = await User.findById(author_id)
+            if (!author) return res.status(400).json({ msg: 'incorrect given author_id' })
 
-        let parent_check: any;
-        if (parent_tweet) {
-            parent_check = await Tweet.findById(parent_tweet)
-            if (!parent_check) return res.status(404).json({ msg: 'incorrect given parent_tweet' })
-        }
+            let parent_check: any;
+            if (parent_tweet) {
+                parent_check = await Tweet.findById(parent_tweet)
+                if (!parent_check) return res.status(404).json({ msg: 'incorrect given parent_tweet' })
+            }
 
-        const tweet = await Tweet.create({
-            author: author_id,
-            parent_tweet,
-            text,
-            attachments
-        })
+            let tweet = await Tweet.create({
+                author: author_id,
+                parent_tweet,
+                text
+            })
 
-        if (tweet) {
-            author.num_tweets = author.num_tweets || 0 + 1
-            author.save()
+            let SAS_tokens;
+            if (mediaFiles) {
+                const mediaTags = await CreateMediaFilesAndTokens(mediaFiles, tweet)
+                SAS_tokens = mediaTags.map((ele) => ele.sas_token)
+                tweet.media = mediaTags.map((ele) => ele.media_id)
+                console.log('Sas toekns', SAS_tokens)
+                tweet = await tweet.save()
+            }
+
+            if (tweet) {
+                author.num_tweets = author.num_tweets || 0 + 1
+                author.save()
+            }
+            if (parent_check) {
+                parent_check.num_comments = author.num_comments || 0 + 1
+                parent_check.save()
+            }
+            return res.status(200).json({ tweet, SAS_tokens })
+        } catch (err) {
+            console.log("Some error occured!", err)
         }
-        if (parent_check) {
-            parent_check.num_comments = author.num_comments || 0 + 1
-            parent_check.save()
-        }
-        return res.status(200).json(tweet)
     } else {
         return res.status(404).json({ msg: "method doesn't exist" })
     }
 }
+
+async function CreateMediaFilesAndTokens(mediaFiles: IMedia[], tweet: ITweetStored) {
+    const createMedia = mediaFiles.map(async (media, index) => {
+        if ((media.type === 'image/gif' || media.type === 'image/jpeg' ||
+            media.type === 'image/jpg' || media.type === 'image/png' ||
+            media.type === 'image/webp') && media.size < 2097152) {
+            const containerClient = blobServiceClient.getContainerClient(tweet.author.toString());
+            // Create the container
+            containerClient.createIfNotExists({
+                metadata: {
+                    blobMaxSizeInBytes: maxSize.toString(),
+                },
+                access: 'blob'
+            })
+
+            const sasQueryParams = generateBlobSASQueryParameters({
+                containerName: tweet.author.toString(),
+                blobName: `${tweet._id.toString()}_${index}`,
+                permissions: permissions_towrite,
+                startsOn: new Date(),
+                expiresOn: new Date(new Date().valueOf() + 86400) // Set the expiry time to 24 hours from now
+            }, sharedKeyCredential);
+
+            const sas_token = `https://${accountName}.blob.core.windows.net/${tweet.author.toString()}/${tweet._id.toString()}_${index}?${sasQueryParams}`;
+            console.log(sas_token)
+            const mediaDoc = await Media.create({
+                type: media.type,
+                size: media.size,
+                url: `${process.env.BLOB_STORAGE_ACCOUNT_URL}/${tweet.author.toString()}/${tweet._id.toString()}_${index}`,
+                author: tweet.author.toString(),
+                parent_tweet: tweet._id.toString(),
+            })
+            if (mediaDoc && mediaDoc._id) {
+                // return mediaDoc._id as mongoose.Types.ObjectId
+                return { sas_token, media_id: mediaDoc._id as mongoose.Types.ObjectId }
+            } else {
+                return null
+            }
+        } else {
+            return null;
+        }
+    })
+    const mediaIds = await Promise.all(createMedia)
+    let mediaIds_ = mediaIds.filter((ele) => ele !== null) as { sas_token: string; media_id: mongoose.Types.ObjectId }[]
+    return mediaIds_
+}
+
+
+/* 
+s
+You can give object-level permissions using SAS token in Azure Blob Storage using JavaScript by creating a SAS token with appropriate permissions and then using it to authenticate your request to upload an image to that blob². Here are the general steps:
+1. Create a Shared Access Signature (SAS) token for your storage account or container using one of the methods mentioned in my previous response.
+2. Use the SAS token to authenticate your request to upload a blob and set the desired name for your blob using the `x-ms-blob-name` header².
+
+Here's an example of how to create a SAS token with object-level permissions using JavaScript:
+```javascript
+const { BlobServiceClient } = require("@azure/storage-blob");
+
+const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+const containerClient = blobServiceClient.getContainerClient(containerName);
+
+const blobName = "myBlobName";
+const blobClient = containerClient.getBlobClient(blobName);
+
+const sasToken = generateSasToken(blobClient.url, "racwdlup");
+
+async function uploadBlob() {
+  const response = await fetch(fileUrl);
+  const blobOptions = { blobHTTPHeaders: { blobContentType: "image/jpeg" } };
+  const blockBlobClient = blobClient.getBlockBlobClient();
+  await blockBlobClient.uploadStream(response.body, undefined, undefined, blobOptions);
+}
+
+function generateSasToken(uri, permissions) {
+  const sasGenerator = new BlobSASPermissions();
+  sasGenerator.parse(permissions);
+
+  const sasQueryParams = {
+    permissions: sasGenerator.toString(),
+    startsOn: new Date(),
+    expiresOn: new Date(new Date().valueOf() + 86400),
+    containerName,
+    blobName,
+  };
+
+  const sharedKeyCredential = new StorageSharedKeyCredential(accountName, accountKey);
+  const sasToken = generateBlobSASQueryParameters(sasQueryParams, sharedKeyCredential).toString();
+
+  return `${uri}?${sasToken}`;
+}
+```
+In this example, we're using the `@azure/storage-blob` package to create a BlobServiceClient and ContainerClient objects which we use to get a BlobClient object for our desired blob⁴. We then generate a SAS token with object-level permissions using the `generateSasToken()` function which takes in the URL of our BlobClient object and a string of permissions as arguments⁴. Finally, we use this SAS token to authenticate our request to upload an image to that blob and set the desired name for our blob using the `x-ms-blob-name` header².
+
+I hope this helps! Let me know if you have any other questions.
+
+Source: Conversation with Bing, 06/04/2023(1) Grant limited access to Azure Storage resources using shared access .... https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview Accessed 06/04/2023.
+(2) Tutorial: Access Azure Storage using a SAS credential - Linux .... https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/tutorial-linux-vm-access-storage-sas Accessed 06/04/2023.
+(3) How to Generate an Azure SAS Token to Access Storage Accounts. https://adamtheautomator.com/azure-sas-token/ Accessed 06/04/2023.
+(4) Azure Storage Blobs User Delegation SAS Tokens now Generally Available. https://azure.microsoft.com/en-us/updates/azure-storage-blobs-user-delegation-sas-tokens-now-generally-available/ Accessed 06/04/2023.
+*/

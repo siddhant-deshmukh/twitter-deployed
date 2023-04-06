@@ -55,7 +55,7 @@ export default async function handler(
         sameSite: true,
         path:'/'
     }))
-    console.log("setting header")
+    // console.log("setting header")
     if (users.length > 0) {
         res.status(200).json(users[0])
     } else {

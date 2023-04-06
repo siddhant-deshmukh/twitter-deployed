@@ -12,7 +12,7 @@ function create_users() {
     const TweetsArray = []
 
     let auth_type = ['google', 'github', 'password']
-    // making first users 
+    // making first users  
     for (var i = 0; i < 15; i++) {
         let accounts = new Map()
         for (var j = 0; j < 1 + Math.floor(Math.random() * 1); j++) {
@@ -77,20 +77,19 @@ function addFollowersFollowings(userIds, users) {
 }
 
 
-function create_tweets(userIds) {
-    const TweetsArray = []
+function create_tweets(userIds,users) {
+    const tweets_array = []
 
     for (var i = 0; i < 30; i++) {
 
         let new_tweet = {
-            text: faker.lorem.sentences(2).slice(0, 150),
+            text: faker.lorem.paragraphs().slice(0, 350),
             author: userIds[Math.floor(Math.random() * userIds.length)],
         }
-
-        
-        TweetsArray.push(new_tweet)
+        users[new_tweet.author].num_tweets = ( users[new_tweet.author].num_tweets || 0 ) + 1
+        tweets_array.push(new_tweet)
     }
-    return TweetsArray
+    return { tweets_array, users}
 }
 async function UploadTweets(tweets_array) {
     // console.log(Users_array)
@@ -108,6 +107,41 @@ async function UploadTweets(tweets_array) {
     console.log('UploadTweets : ',tweet_ids)
     return { tweet_ids, tweets }
 }
+function AddCommets(tweets,users){
+    let tweets_id = Object.keys(tweets)
+    let users_id = Object.keys(users)
+    let comments = []
+
+    for(var i=0;i<50;i++){
+        let random_tweet_id = tweets_id[Math.floor(Math.random() * 5)]
+        let random_user_id = users_id[Math.floor(Math.random() * users_id.length)]
+        // let random_tweet_id = tweets_id[Math.floor(Math.random() * 5)]
+        let new_tweet = {
+            parent_tweet: random_tweet_id,
+            text: faker.lorem.paragraphs().slice(0, 350),
+            author: random_user_id,
+        }
+        comments.push(new_tweet)
+        tweets[tweets_id].num_comments = (tweets[tweets_id].num_comments || 0) + 1
+    }
+    return  {comments , tweets}
+}
+async function UploadComments(comment_array, tweets){
+    const comment_ids = []
+    // const tweets = {}
+    await Promise.all(comment_array.map(async (tweet, index) => {
+        // console.log(tweet)
+        await Tweet.create(tweet).then((new_tweet) => {
+            if (new_tweet && new_tweet._id) {
+                comment_ids.push(new_tweet._id.toString())
+                tweets[new_tweet._id.toString()] = new_tweet
+            }
+        })
+    }))
+    console.log('UploadTweets : ',comment_ids)
+    return { comment_ids, tweets }
+}
+
 function ModifyUsers(tweet_ids, tweets, users) {
     let userIds = Object.keys(users)
     tweet_ids.forEach((tweet_id) => {
@@ -158,5 +192,5 @@ async function UpdateUsers(users) {
     }))
     // console.log('Update Users',users)
 }
-module.exports = { UploadUsers, create_users, addFollowersFollowings, create_tweets, ModifyUsers, UploadTweets, UpdateUsers }
+module.exports = { UploadUsers, create_users, addFollowersFollowings, create_tweets, ModifyUsers, UploadTweets, UpdateUsers, AddCommets }
 

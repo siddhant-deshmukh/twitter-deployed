@@ -18,13 +18,13 @@ export default async function handler(
     method
   } = req
   await dbConnect()
-  
+
 
   const user = await getUserSession(req, res)
   if (!user) {
     return res.status(401).json({ msg: 'error in token!!' })
   }
-  const {  tweet_id } = req.query
+  const { tweet_id } = req.query
   // console.log(skip,limit)
   // console.log(`${(skip)?Number(skip):0}`,`${(limit)?Number(skip):5}`)
 
@@ -92,19 +92,73 @@ export default async function handler(
       }
     },
     {
+      $lookup : {
+        from : 'media',
+        localField : 'media',
+        foreignField: '_id',
+        as : 'media'
+      }
+    },
+
+    {
       $set: {
         authorDetails: { $arrayElemAt: ["$authorDetails", 0] },
         have_liked: { $cond: [{ $gte: [{ $size: '$have_liked' }, 1] }, true, false] },
         have_retweeted: { $cond: [{ $gte: [{ $size: '$have_retweeted' }, 1] }, true, false] },
+        // mediaFile: {
+
+        //   $map: {
+        //     input: "$media",
+        //     as: "media_id",
+        //     in: {
+        //       $lookup: {
+        //         from: "media",
+        //         pipeline: [
+        //           {
+        //             $match: {
+        //               $expr: {
+        //                 $eq: ["$_id", "$$media_id"] ,
+        //               }
+        //             }
+        //           },
+        //         ],
+
+        //         as: "media"
+        //       }
+        //     }
+        //   }
+
+        // }
         // have_liked : { $arrayElemAt: ["$have_liked", 0] },
         // have_retweeted : { $arrayElemAt: ["$have_retweeted", 0] },
       }
     },
   ])
   // console.log('here to look tweet',tweet_id)
-  if(tweets.length > 0){
+  if (tweets.length > 0) {
     res.status(200).json(tweets[0])
-  }else{
-    res.status(404).json({msg : 'Tweet not found'})
+  } else {
+    res.status(404).json({ msg: 'Tweet not found' })
   }
 }
+/**
+ 
+$lookup: {
+            from: "media",
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ["$tweetId", "$$tweet_id"] },
+                      { $eq: ["$userId", "$$tweet_author"] },
+                    ]
+                  }
+                }
+
+              },
+            ],
+
+            as: "media"
+          }
+ */

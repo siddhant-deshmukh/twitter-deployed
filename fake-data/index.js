@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
-const { create_users, UploadUsers, addFollowersFollowings, create_tweets, ModifyUsers, UploadTweets, UpdateUsers } = require('./functions')
-const {mongo_url} = require('./secret')
+const { create_users, UploadUsers, addFollowersFollowings, create_tweets, ModifyUsers, UploadTweets, UpdateUsers, AddCommets } = require('./functions')
+const { mongo_url } = require('./secret')
 
 
 mongoose.connect(mongo_url)
@@ -15,7 +15,8 @@ mongoose.connect(mongo_url)
         // console.log(userids)
         users = addFollowersFollowings(userids, users)
 
-        let tweets_array = create_tweets(userids)
+        let tweets_array = []
+        ({ tweets_array, users } = create_tweets(userids))
         // console.log()
         // console.log(tweets_array)
         let res__ = await UploadTweets(tweets_array)

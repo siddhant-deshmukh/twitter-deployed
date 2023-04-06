@@ -37,7 +37,10 @@ export function TweetComponent({ tweet_id, tweet, updateTweet }: {
               {
                 tweet.media.map((ele, index) => {
                   return <div className={`w-full h-full rounded-xl overflow-hidden relative ${(tweet.media?.length === 3 && index === 0) ? 'row-span-2' : ''} `} key={ele.url}>
-                    <img src={ele.url} className="w-full h-full max-h-[600px]" />
+                    {
+                      ele.url
+                    }
+                    <img src={`${ele.url}`} className="w-full h-full max-h-[600px]" />
                   </div>
                 })
               }
