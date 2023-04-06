@@ -9,26 +9,29 @@ export interface ITweetAttachments {
 export interface ITweetCreate {
   parent_tweet?: Types.ObjectId | null | string,
   text: string,
-  attachments?: ITweetAttachments,
   author: Types.ObjectId | string,
+  tweet_attachment : Types.ObjectId,
+  
 }
 export interface ITweetStored extends ITweetCreate {
   _id: Types.ObjectId | string,
   time: Date,
 
+  media? : Types.ObjectId[],
 
   num_views: number,
   num_comments: number,
   num_quotes: number,
   num_likes: number,
   num_retweet: number,
-
 }
+
 export interface ITweet {
   _id: string,
   parent_tweet?: null | string,
   text: string,
-  attachments?: ITweetAttachments,
+  tweet_attachment : Types.ObjectId,
+
   author: string,
   time: string,
 
@@ -60,8 +63,9 @@ const TweetSchema = new mongoose.Schema<ITweetStored>({
   author: { type: mongoose.Schema.Types.ObjectId, required: true, index:true },
   parent_tweet: { type: mongoose.Schema.Types.ObjectId, sparse: true },
   text: { type: String, maxlength: 400, default: "" },
-  attachments: contentSchema,
 
+  tweet_attachment: { type: mongoose.Schema.Types.ObjectId},
+  media: [{ type: mongoose.Schema.Types.ObjectId }],
 
   time: { type: Date, required: true, default: Date.now(), index:true },
   num_views: { type: Number, default: 0 },

@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import dbConnect from '../../lib/dbConnect'
 import mongoose from 'mongoose'
 import Tweet, { ITweet } from '../../models/Tweet'
-import User from '../../models/User'
+import User, { IUser, IUserStored } from '../../models/User'
 import { getUserSession } from '@/lib/getUserFromToken'
 import jwt from 'jsonwebtoken'
 import { serialize } from 'cookie'
@@ -25,7 +25,7 @@ export default async function handler(
   if (!user) {
     // return res.status(401).json({ msg: 'error in token!!' })
     console.log("Getting temp")
-    let temp_user = await User.findById('64219d64a6a5b870d5753c02').select({accounts : 0})
+    let temp_user : IUserStored = await User.findOne({user_name : process.env.DEFAULT_USER_FOR_LOGIN_USERNAME}).select({accounts : 0})
     if (temp_user && temp_user._id) {
       const token = jwt.sign({ _id: temp_user._id.toString(), email: temp_user.email }, process.env.TOKEN_KEY || 'zhingalala', { expiresIn: '2h' })
       res.setHeader('Set-Cookie', serialize('auth-token', token, {
