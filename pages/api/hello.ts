@@ -31,7 +31,7 @@ export default async function handler(
       res.setHeader('Set-Cookie', serialize('auth-token', token, {
         httpOnly: false,
         maxAge: 60 * 60 * 100000,
-        sameSite: 'strict',
+        sameSite: 'none',
         path: '/'
       }))
       return res.status(200).json(temp_user)

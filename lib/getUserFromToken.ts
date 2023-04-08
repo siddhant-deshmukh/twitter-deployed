@@ -14,7 +14,7 @@ export async function getUserSession(req: NextApiRequest, res: NextApiResponse) 
         if (!token) {
             throw 'No token'
         }
-        const decoded = jwt.verify(token, process.env.TOKEN_KEY || 'zhingalala');
+        const decoded = jwt.verify(token, process.env.JWT_TOKEN_KEY || 'zhingalala');
         
         if (typeof decoded === 'string' || !decoded._id) {
             throw 'white decoding invalid token'
