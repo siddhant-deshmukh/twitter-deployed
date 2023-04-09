@@ -1,9 +1,10 @@
+import { AuthContext } from '@/context/authContext'
 import { IUser } from '@/models/User'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useSWRConfig } from 'swr'
 
 const useUserCache = (
-    author_id?: string 
+    author_id?: string
 ) => {
     const [author, setAuthor] = useState<IUser | undefined>(undefined)
     const [loading, setLoading] = useState<boolean>(true)
@@ -33,8 +34,9 @@ const useUserCache = (
     //         return new_
     //     })
     // }
+    const { setAuthState } = useContext(AuthContext)
     useEffect(() => {
-        if(!author_id || typeof author_id !== 'string') return;
+        if (!author_id || typeof author_id !== 'string') return;
 
         // console.log("Here to look for user", author_id)
         setLoading(true)
@@ -44,8 +46,14 @@ const useUserCache = (
             setAuthor(check)
             setLoading(false)
         } else {
-            fetch(`/api/user/${author_id}`,{credentials:'include'})
-                .then((res) => res.json())
+            fetch(`/api/user/${author_id}`, { credentials: 'include' })
+                .then((res) => {
+                    if (res.status === 401) {
+                        setAuthState(null)
+                        return null;
+                    }
+                    return res.json()
+                })
                 .then(data => {
                     if (data && data._id) {
                         setAuthor(data)
@@ -65,7 +73,7 @@ const useUserCache = (
         }
     }, [author_id])
     return {
-        authorDetails : author,
+        authorDetails: author,
         loading,
         error
     }

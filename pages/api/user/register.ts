@@ -48,7 +48,7 @@ export default async function handler(
             })
             if (!new_user) return res.status(501).json({ msg: 'Some internal error occured' })
 
-            const token = jwt.sign({ _id: new_user._id.toString(), email }, process.env.TOKEN_KEY || 'zhingalala', { expiresIn: '2h' })
+            const token = jwt.sign({ _id: new_user._id.toString(), email }, process.env.JWT_TOKEN_KEY || 'zhingalala', { expiresIn: '2h' })
             res.setHeader('Set-Cookie', serialize('auth-token', token, {
                 httpOnly: false,
                 maxAge: 60 * 60 * 100000,

@@ -46,7 +46,7 @@ export default async function handler(
                 if (!(await bcrypt.compare(password, actual_password)))
                     return res.status(406).json({ msg: 'Wrong password!' });
 
-                const token = jwt.sign({ _id: check_username[0]._id.toString(), email: check_username[0].email }, process.env.TOKEN_KEY || 'zhingalala', { expiresIn: '2h' })
+                const token = jwt.sign({ _id: check_username[0]._id.toString(), email: check_username[0].email }, process.env.JWT_TOKEN_KEY || 'zhingalala', { expiresIn: '2h' })
                 res.setHeader('Set-Cookie', serialize('auth-token', token, {
                     httpOnly: true,
                     maxAge: 60 * 60 * 100000,

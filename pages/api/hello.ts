@@ -27,12 +27,13 @@ export default async function handler(
     console.log("Getting temp")
     let temp_user : IUserStored = await User.findOne({user_name : process.env.DEFAULT_USER_FOR_LOGIN_USERNAME}).select({accounts : 0})
     if (temp_user && temp_user._id) {
-      const token = jwt.sign({ _id: temp_user._id.toString(), email: temp_user.email }, process.env.TOKEN_KEY || 'zhingalala', { expiresIn: '2h' })
+      const token = jwt.sign({ _id: temp_user._id.toString(), email: temp_user.email }, process.env.JWT_TOKEN_KEY || 'zhingalala', { expiresIn: '2h' })
       res.setHeader('Set-Cookie', serialize('auth-token', token, {
         httpOnly: false,
         maxAge: 60 * 60 * 100000,
-        sameSite: 'none',
-        path: '/'
+        sameSite: 'strict',
+        path: '/',
+        
       }))
       return res.status(200).json(temp_user)
     }else{

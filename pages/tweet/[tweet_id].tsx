@@ -3,10 +3,12 @@ import { TweetComponent } from '../../components/Tweet/TweetComponent'
 import { useRouter } from 'next/router'
 import { CommentFeedCommentEditor } from '@/components/Tweet/FeedEditor'
 import useTweetsCache from '@/hooks/useTweetsCache'
-import { useContext } from 'react'
+import { useCallback, useContext } from 'react'
 import { AuthContext } from '@/context/authContext'
 import useSWR, { useSWRConfig } from 'swr'
+import useSWRInfinite from "swr/infinite";
 import Tweet from '@/components/Tweet/FeedTweetComponent'
+import { ITweet } from '@/models/Tweet'
 
 
 export default function TweetPage() {
@@ -56,6 +58,33 @@ const CommentFeed = ({ tweet_id }: { tweet_id: string }) => {
     const { refreshInterval, cache, mutate } = useSWRConfig()
     const { authState } = useContext(AuthContext)
     const pageLength = 5
+    const { setAuthState } = useContext(AuthContext)
+
+    const fetchTweetFeed = useCallback(async (url: string) => {
+        const data = await fetch(url, {
+            credentials: 'include',
+            method: 'GET'
+        }).then((res) => {
+            if (res.status === 401) {
+                setAuthState(null)
+                return null;
+            }
+            return res.json()
+        });
+        const tweetIds = data.map((tweet: ITweet) => {
+
+            const exist_ = cache
+            //@ts-ignore
+            if (!exist_ || !exist_._id) {
+                //@ts-ignore
+                cache.set(`tweet/${tweet._id}`, tweet)
+            }
+            return tweet._id
+        })
+        // console.log("data", url, tweetIds)
+        return tweetIds
+    }, [cache])
+
     // const { data: ownComments } = useSWR(`/own_comment/${tweet_id}`, (str: string) => {
 
 
@@ -68,6 +97,15 @@ const CommentFeed = ({ tweet_id }: { tweet_id: string }) => {
         const feed = cache.get(`own_comment/${tweet_id}`)
         return feed
     })
+    const { data: CommentsFeed, mutate: mutateTweetFeed, size, setSize, isValidating, isLoading } = useSWRInfinite(
+        (index) => `/api/tweet/${tweet_id}/comment?skip=${index * pageLength}&limit=${pageLength}`,
+        fetchTweetFeed,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
     return (
         <>
             <div>
@@ -84,6 +122,18 @@ const CommentFeed = ({ tweet_id }: { tweet_id: string }) => {
                 JSON.stringify(ownComments)
             } */}
                     </div>
+                }
+                {
+                    CommentsFeed &&
+                    CommentsFeed.map((page: string[] | [], pageNum) => {
+                        if (!page) return <div></div>
+                        return page.map((tweet_id: string, indexNum) => {
+                            return <div key={tweet_id}>
+
+                                {tweet_id && <Tweet tweet_id={tweet_id} />}
+                            </div>
+                        })
+                    })
                 }
             </div>
 
