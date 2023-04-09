@@ -19,7 +19,7 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
   return (
     <div
       id={`${tweet._id}`}
-      className="flex w-full px-2 pt-2 border-b border-b-gray-200 border-r hover:cursor-pointer border-r-gray-200  hover:bg-gray-50"
+      className="flex w-full space-x-2 px-3 pt-2 border-b border-b-gray-200 border-r hover:cursor-pointer border-r-gray-200  hover:bg-gray-50"
       onClick={(event: SyntheticEvent) => {
         //@ts-ignore
         if (event.target && typeof event.target.className === 'string' && !event.target.className.includes('tweet-btn') && !event.target.className.includes('user-link')) {
@@ -35,15 +35,20 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
         tweet._id && <AuthorAvatar author_id={tweet.author} />
       }
       <div className="w-full flex flex-col ">
+        {/* Author Details */}
         <div className="flex items-center space-x-1">
           {
             tweet._id &&
             <AuthorDetails author_id={tweet.author} />
           }
         </div>
-        <p className="text-base font-normal text-left whitespace-pre-line">
-          {tweet.text}
+
+        {/* text */}
+        <p className="text-base text-left text-gray-800 whitespace-pre-line" style={{fontWeight : '300px'}}>
+          {tweet.text.slice(0,280)}
         </p>
+
+        {/* Media Files if present */}
         {
           tweet.media && tweet.media.length > 0 &&
           <div className={` my-2
@@ -58,6 +63,8 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
             }
           </div>
         }
+
+        {/* Footer with button to do some operations */}
         <ul className="flex justify-between text-gray-500">
           <li className="w-full">
             <button className="w-fit items-center flex justify-start space-x-1 pr-4 py-2  group hover:text-blue-700 tweet-btn">
@@ -115,6 +122,7 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
             </button>
           </li>
         </ul>
+
       </div>
     </div>
   );

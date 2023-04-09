@@ -87,14 +87,20 @@ function UserTweetFeed({ author_id }: { author_id: string | string[] }) {
     const { authorDetails, loading: authorLoading, error: authorError } = useUserCache(author_id as string | undefined)
     const router = useRouter()
     const { refreshInterval, cache, mutate } = useSWRConfig()
-    const { authState } = useContext(AuthContext)
+    const { authState, setAuthState } = useContext(AuthContext)
     const pageLength = 5
     const [feedType, setType] = useState<'tweet' | 'like' | 'media'>('tweet')
     const fetchTweetFeed = useCallback(async (url: string) => {
         const data = await fetch(url, {
             credentials: 'include',
             method: 'GET'
-        }).then((res) => res.json());
+        }).then((res) => {
+            if(res.status === 401){
+                setAuthState(null)
+                return null;
+            }
+            return res.json()
+        });
         const tweetIds = data.map((tweet: ITweet) => {
 
             const exist_ = cache
@@ -105,7 +111,7 @@ function UserTweetFeed({ author_id }: { author_id: string | string[] }) {
             }
             return tweet._id
         })
-        console.log("data", url, tweetIds)
+        // console.log("data", url, tweetIds)
         return tweetIds
     }, [cache])
     const { data: ownTweets } = useSWR('/own/tweetfeed', (str: string) => {

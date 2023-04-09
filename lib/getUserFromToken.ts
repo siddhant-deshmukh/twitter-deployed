@@ -8,6 +8,9 @@ import { serialize } from 'cookie'
 
 export async function getUserSession(req: NextApiRequest, res: NextApiResponse) : Promise<null | IUserSnippet> {
     try {
+        // console.log()
+        // console.log('cookies', req.cookies)
+        // console.log()
         const token = req.cookies['auth-token']
 
         // console.log("Here is the cookies",req.cookies,token)
@@ -27,12 +30,12 @@ export async function getUserSession(req: NextApiRequest, res: NextApiResponse) 
         return user
     } catch (error) {
         console.log(error)
-        // res.setHeader('Set-Cookie', serialize('auth-token', '', {
-        //     httpOnly: true,
-        //     maxAge: 0,
-        //     sameSite: 'none',
-        //     path:'/'
-        // }))
+        res.setHeader('Set-Cookie', serialize('auth-token', '', {
+            httpOnly: true,
+            maxAge: 0,
+            sameSite: 'strict',
+            path:'/'
+        }))
         return null;
     }
 }

@@ -1,5 +1,6 @@
+import { AuthContext } from '@/context/authContext'
 import { ITweet } from '@/models/Tweet'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useSWRConfig } from 'swr'
 
 const useTweetsCache = (
@@ -9,6 +10,9 @@ const useTweetsCache = (
     const [loading, setLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
     const { cache } = useSWRConfig()
+
+    const { setAuthState } = useContext(AuthContext)
+
     const updateTweet = (what: 'liked' | 'retweeted' | 'add-comment') => {
         setTweet((prev_tweet) => {
             let new_ = { ...prev_tweet } as ITweet | undefined
@@ -17,7 +21,7 @@ const useTweetsCache = (
                 new_ = {
                     ...new_,
                     have_liked: (new_.have_liked) ? (false) : true,
-                    num_likes: (!new_.have_liked) ? (new_.num_likes  + 1) : (new_.num_likes - 1)
+                    num_likes: (!new_.have_liked) ? (new_.num_likes + 1) : (new_.num_likes - 1)
                 }
                 console.log('liked')
             }
@@ -25,7 +29,7 @@ const useTweetsCache = (
                 new_ = {
                     ...new_,
                     have_retweeted: (new_.have_retweeted) ? (false) : true,
-                    num_retweet: (!new_.have_retweeted) ? (new_.num_retweet  + 1) : (new_.num_retweet - 1)
+                    num_retweet: (!new_.have_retweeted) ? (new_.num_retweet + 1) : (new_.num_retweet - 1)
                 }
             }
             //@ts-ignore
@@ -35,26 +39,32 @@ const useTweetsCache = (
     }
     useEffect(() => {
         setLoading(true)
-        if(!tweet_id || typeof tweet_id !== 'string') return;
+        if (!tweet_id || typeof tweet_id !== 'string') return;
         //@ts-ignore
         let check: ITweet | undefined = cache.get(`tweet/${tweet_id}`)
-        console.log('inside tweet_id',check)
+        console.log('inside tweet_id', check)
         if (check && check._id) {
             setTweet(check)
             setLoading(false)
         } else {
-            fetch(`/api/tweet/${tweet_id}`,{credentials:'include'})
-                .then((res) => res.json())
+            fetch(`/api/tweet/${tweet_id}`, { credentials: 'include' })
+                .then((res) => {
+                    if (res.status === 401) {
+                        setAuthState(null)
+                        return null;
+                    }
+                    return res.json()
+                })
                 .then(data => {
                     if (data && data._id) {
                         setTweet(data)
                         //@ts-ignore
                         cache.set(`tweet/${data._id}`, data)
-                    }else{
+                    } else {
                         setError('Some error occured')
                     }
                 })
-                .catch((err)=>{
+                .catch((err) => {
                     setError(err.msg || 'Some error occured')
                 })
                 .finally(() => {

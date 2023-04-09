@@ -8,8 +8,7 @@ const accountName = process.env["ACCOUNT_NAME"];
 const accountKey = process.env["ACCOUNT_KEY"];
 // const containerName = "avatar";
 const MaximumFileSize = 1 * 1024 * 1024
-const jwtTokenKey = process.env.JWT_TOKEN_KEY || 'zhingalala'
-
+const jwtTokenKey = process.env.JWT_TOKEN_KEY 
 module.exports = async function (
     context: Context,
     req: HttpRequest

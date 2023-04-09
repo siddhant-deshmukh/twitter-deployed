@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const { create_users, UploadUsers, addFollowersFollowings, create_tweets, ModifyUsers, UploadTweets, UpdateUsers, AddCommets } = require('./functions')
+const { create_users, UploadUsers, addFollowersFollowings, create_tweets, ModifyUsers, UploadTweets, UpdateUsers, AddCommets, UploadComments } = require('./functions')
 const { mongo_url } = require('./secret')
 
 
@@ -9,20 +9,36 @@ mongoose.connect(mongo_url)
         let users_array = create_users()
         // console.log(users_array)
 
-        let res_ = await UploadUsers(users_array)
-        let userids = res_.user_ids
-        let users = res_.users
-        // console.log(userids)
+        let res__ = await UploadUsers(users_array)
+        let userids = res__.user_ids
+        let users = res__.users
         users = addFollowersFollowings(userids, users)
+        
+        console.log(users)
+        // let tweets_array = []
+        // ({ tweets_array, users } = create_tweets(userids,users)
+        res__ = create_tweets(userids,users)
+        let tweets_array = res__.tweets_array 
+        users = res__.users
 
-        let tweets_array = []
-        ({ tweets_array, users } = create_tweets(userids))
         // console.log()
         // console.log(tweets_array)
-        let res__ = await UploadTweets(tweets_array)
-        let tweetids = res__.tweet_ids
+        res__ = await UploadTweets(tweets_array)
         let tweets = res__.tweets
-        users = ModifyUsers(tweetids, tweets, users)
+
+        // ({ comments : comment_array, tweets } = AddCommets(tweets,users))
+        // console.log('tweets', tweets)
+        res__ = AddCommets(tweets,users)
+        let comment_array = res__.comments 
+        tweets = res__.tweets 
+        // ({ comment_ids , tweets } = UploadComments(tweets))
+        // console.log('\n\n\nbefore upload comments', Object.keys(tweets))
+        res__ = await UploadComments(comment_array,tweets)
+        let comment_ids = res__.comment_ids 
+        tweets = res__.tweets
+
+        // console.log('\n\n\nbefore modify users', Object.keys(tweets))
+        users = ModifyUsers(tweets, users)
 
         // console.log(users)
         await UpdateUsers(users)
