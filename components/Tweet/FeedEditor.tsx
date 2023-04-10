@@ -218,7 +218,7 @@ export function FeedTweetEditor({ mutateOwnTweets }: {
                   new_ = [new_tweet._id]
                 }
 
-                UploadTweet(text_,mediaFiles).then((new_) => {
+                UploadTweet(text_, mediaFiles).then((new_) => {
                   console.log("New tweet response", new_)
                   if (new_ && new_._id) {
                     //@ts-ignore
@@ -504,7 +504,7 @@ async function UploadTweet(
   mediaFiles: IMedia[],
   parent_tweet_id?: string
 ) {
-  const res =  await fetch(`/api/tweet`, {
+  const res = await fetch(`/api/tweet`, {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
@@ -520,21 +520,20 @@ async function UploadTweet(
   })
   const data = await res.json()
   console.log('data reviced', data)
-  if(data.SAS_tokens && Array.isArray(data.SAS_tokens)){
-    const uploaded = data.SAS_tokens.map(async (blobSasUrl : string,index)=>{
+  if (data.media_ids && Array.isArray(data.media_ids)) {
+    const uploaded = data.media_ids.map(async (media_id: string, index: number) => {
       // const blobServiceClient = new BlobServiceClient(blobSasUrl);
       let file = mediaFiles[index].file
-      if(!file) return;
-      let blob = new Blob([file], {type : file.type})
-      const blob_data =  await fetch(blobSasUrl,{
-        method : 'PUT',
-        headers : {
-          'x-ms-blob-type': 'BlockBlob',
-          'Content-Length': file.size.toString(),
-        },
-        body : blob
-      }).then((res)=>res.json())
-      console.log('blob data',index, blob_data)
+      if (!file) return;
+      // let blob = new Blob([file], { type: file.type })
+      const blob_data = await fetch(`${process.env.NEXT_PUBLIC_UPLOAD_IMG_URL}?media_id=${media_id}`, {
+        method: 'POST',
+        body: file,
+        headers: {
+          "Content-type": file.type
+        }
+      }).then((res) => res.json())
+      console.log('blob data', index, blob_data)
     })
     await Promise.all(uploaded)
   }

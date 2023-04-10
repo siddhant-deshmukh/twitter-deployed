@@ -51,13 +51,13 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
         {/* Media Files if present */}
         {
           tweet.media && tweet.media.length > 0 &&
-          <div className={` my-2
+          <div className={` my-2 gap-1
               ${(tweet.media.length > 1) ? 'grid  grid-cols-2 h-96' : ''} 
               ${(tweet.media.length > 2) ? 'grid-rows-2' : ''} `}>
             {
               tweet.media.map((ele, index) => {
                 return <div className={`w-full h-full rounded-xl overflow-hidden relative ${(tweet.media?.length === 3 && index === 0) ? 'row-span-2' : ''} `} key={ele.url}>
-                  <img src={ele.url} className="w-full h-full max-h-[600px]" />
+                  <img src={ele.url} className="w-full object-none h-full max-h-[600px]" />
                 </div>
               })
             }

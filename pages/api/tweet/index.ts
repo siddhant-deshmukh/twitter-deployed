@@ -8,7 +8,7 @@ import { getUserSession } from '@/lib/getUserFromToken'
 import Media, { IMedia } from '@/models/Media'
 import { BlobSASPermissions, BlobServiceClient, generateBlobSASQueryParameters, StorageSharedKeyCredential } from '@azure/storage-blob'
 
-type Data = { tweet: ITweet, SAS_tokens?: string[] } | { msg: string } | ITweet[]
+type Data = { tweet: ITweet, media_ids?: mongoose.Types.ObjectId[] } | { msg: string } | ITweet[]
 
 const connectionString = process.env.BLOB_CONNECTION_STRING as string;
 const accountName = process.env.BLOB_ACCOUNT_NAME as string;
@@ -44,6 +44,11 @@ export default async function handler(
         // console.log(skip,limit)
         // console.log(`${(skip)?Number(skip):0}`,`${(limit)?Number(skip):5}`)
         const tweets = await Tweet.aggregate([
+            {
+                $match: {
+                    parent_tweet : { $exists : false  }
+                }
+            },
             { $sort: { time: -1 } },
             { $skip: (skip) ? Number(skip) : 0 },
             { $limit: (limit) ? Number(limit) : 5 },
@@ -163,12 +168,10 @@ export default async function handler(
                 text
             })
 
-            let SAS_tokens;
+            let media_ids: mongoose.Types.ObjectId[] = []
             if (mediaFiles) {
-                const mediaTags = await CreateMediaFilesAndTokens(mediaFiles, tweet)
-                SAS_tokens = mediaTags.map((ele) => ele.sas_token)
-                tweet.media = mediaTags.map((ele) => ele.media_id)
-                console.log('Sas toekns', SAS_tokens)
+                media_ids = await CreateMediaFilesAndTokens(mediaFiles, tweet)
+                tweet.media = media_ids
                 tweet = await tweet.save()
             }
 
@@ -180,7 +183,7 @@ export default async function handler(
                 parent_check.num_comments = author.num_comments || 0 + 1
                 parent_check.save()
             }
-            return res.status(200).json({ tweet, SAS_tokens })
+            return res.status(200).json({ tweet, media_ids })
         } catch (err) {
             console.log("Some error occured!", err)
         }
@@ -194,25 +197,6 @@ async function CreateMediaFilesAndTokens(mediaFiles: IMedia[], tweet: ITweetStor
         if ((media.type === 'image/gif' || media.type === 'image/jpeg' ||
             media.type === 'image/jpg' || media.type === 'image/png' ||
             media.type === 'image/webp') && media.size < 2097152) {
-            const containerClient = blobServiceClient.getContainerClient(tweet.author.toString());
-            // Create the container
-            containerClient.createIfNotExists({
-                metadata: {
-                    blobMaxSizeInBytes: maxSize.toString(),
-                },
-                access: 'blob'
-            })
-
-            const sasQueryParams = generateBlobSASQueryParameters({
-                containerName: tweet.author.toString(),
-                blobName: `${tweet._id.toString()}_${index}`,
-                permissions: permissions_towrite,
-                startsOn: new Date(),
-                expiresOn: new Date(new Date().valueOf() + 86400) // Set the expiry time to 24 hours from now
-            }, sharedKeyCredential);
-
-            const sas_token = `https://${accountName}.blob.core.windows.net/${tweet.author.toString()}/${tweet._id.toString()}_${index}?${sasQueryParams}`;
-            console.log(sas_token)
             const mediaDoc = await Media.create({
                 type: media.type,
                 size: media.size,
@@ -222,7 +206,7 @@ async function CreateMediaFilesAndTokens(mediaFiles: IMedia[], tweet: ITweetStor
             })
             if (mediaDoc && mediaDoc._id) {
                 // return mediaDoc._id as mongoose.Types.ObjectId
-                return { sas_token, media_id: mediaDoc._id as mongoose.Types.ObjectId }
+                return mediaDoc._id as mongoose.Types.ObjectId
             } else {
                 return null
             }
@@ -231,7 +215,7 @@ async function CreateMediaFilesAndTokens(mediaFiles: IMedia[], tweet: ITweetStor
         }
     })
     const mediaIds = await Promise.all(createMedia)
-    let mediaIds_ = mediaIds.filter((ele) => ele !== null) as { sas_token: string; media_id: mongoose.Types.ObjectId }[]
+    let mediaIds_ = mediaIds.filter((ele) => ele !== null) as mongoose.Types.ObjectId[]
     return mediaIds_
 }
 
