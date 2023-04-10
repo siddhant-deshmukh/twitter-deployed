@@ -19,19 +19,19 @@ export default function TweetPage() {
     if (tweet && tweet._id && tweet_id && typeof tweet_id === 'string') {
         return (
             <div className='w-full'>
+                <h1 className='flex w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-90 bg-white'>
+                    <button
+                        onClick={(event) => { event.preventDefault(); router.back() }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                        </svg>
+                    </button>
+                    <span className='text-xl font-semibold'>
+                        Tweet
+                        {/* {tweet_id} */}
+                    </span>
+                </h1>
                 <div className="">
-                    <h1 className='flex w-full space-x-10 p-3 sticky top-0 opacity-90 bg-white'>
-                        <button
-                            onClick={(event) => { event.preventDefault(); router.back() }}>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                            </svg>
-                        </button>
-                        <span className='text-xl font-semibold'>
-                            Tweet
-                            {/* {tweet_id} */}
-                        </span>
-                    </h1>
 
                     <div>
                         {/* {
