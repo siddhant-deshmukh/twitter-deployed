@@ -1,6 +1,10 @@
+const { StorageSharedKeyCredential, BlobServiceClient } = require('@azure/storage-blob');
 const mongoose = require('mongoose')
 const { create_users, UploadUsers, addFollowersFollowings, create_tweets, ModifyUsers, UploadTweets, UpdateUsers, AddCommets, UploadComments } = require('./functions')
-const { mongo_url } = require('./secret')
+const { mongo_url, blob_url, blob_acess_key } = require('./secret')
+
+const sharedKeyCredential = new StorageSharedKeyCredential( 'devstoreaccount1', blob_acess_key);
+const blobServiceClient = new BlobServiceClient(blob_url, sharedKeyCredential);
 
 
 mongoose.connect(mongo_url)
@@ -9,12 +13,12 @@ mongoose.connect(mongo_url)
         let users_array = create_users()
         // console.log(users_array)
 
-        let res__ = await UploadUsers(users_array)
+        let res__ = await UploadUsers(users_array,blobServiceClient)
         let userids = res__.user_ids
         let users = res__.users
         users = addFollowersFollowings(userids, users)
         
-        console.log(users)
+        // console.log(users)
         // let tweets_array = []
         // ({ tweets_array, users } = create_tweets(userids,users)
         res__ = create_tweets(userids,users)
@@ -23,12 +27,13 @@ mongoose.connect(mongo_url)
 
         // console.log()
         // console.log(tweets_array)
-        res__ = await UploadTweets(tweets_array)
+        res__ = await UploadTweets(tweets_array,blobServiceClient)
         let tweets = res__.tweets
+        let tweet_ids = res__.tweet_ids
 
         // ({ comments : comment_array, tweets } = AddCommets(tweets,users))
         // console.log('tweets', tweets)
-        res__ = AddCommets(tweets,users)
+        res__ = AddCommets(tweets,users,tweet_ids)
         let comment_array = res__.comments 
         tweets = res__.tweets 
         // ({ comment_ids , tweets } = UploadComments(tweets))
