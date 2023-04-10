@@ -92,7 +92,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <h1 className='flex w-full space-x-10 p-3 sticky top-0 opacity-90 bg-white'>
+      <h1 className='flex w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-90 bg-white'>
 
         <span className='text-xl font-semibold'>
           Home

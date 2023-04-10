@@ -34,6 +34,17 @@ export default function UserPage() {
     } else {
         return (
             <div>
+                <h1 className='flex w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-90 bg-white'>
+                    <button
+                        onClick={(event) => { event.preventDefault(); router.back() }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                        </svg>
+                    </button>
+                    <span className='text-xl font-semibold'>
+                        User
+                    </span>
+                </h1>
                 <UserInfo author_id={user_id} />
                 <UserTweetFeed author_id={user_id} />
             </div>
@@ -55,18 +66,8 @@ function UserInfo({ author_id }: { author_id: string | string[] }) {
                     <link rel="icon" href="/favicon.ico" />
                 </Head>
 
+
                 <div className="w-full">
-                    <h1 className='flex w-full space-x-10 p-3 sticky top-0 opacity-90 bg-white'>
-                        <button
-                            onClick={(event) => { event.preventDefault(); router.back() }}>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                            </svg>
-                        </button>
-                        <span className='text-xl font-semibold'>
-                            {authorDetails.name}
-                        </span>
-                    </h1>
                     {
                         <UserDetails authorDetails={authorDetails} />
                     }
@@ -95,7 +96,7 @@ function UserTweetFeed({ author_id }: { author_id: string | string[] }) {
             credentials: 'include',
             method: 'GET'
         }).then((res) => {
-            if(res.status === 401){
+            if (res.status === 401) {
                 setAuthState(null)
                 return null;
             }

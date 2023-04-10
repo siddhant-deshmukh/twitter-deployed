@@ -10,7 +10,7 @@ import TweetModal from "./modals/TweetModal"
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { authLoading, authState, setAuthState } = useContext(AuthContext)
-  const searchParams =  useSearchParams()
+  const searchParams = useSearchParams()
 
   const openTweetModal = searchParams.has('tweet-modal')
   const openUsersModal = searchParams.getAll('user-list')
@@ -28,25 +28,28 @@ export default function Layout({ children }: { children: ReactNode }) {
   } else {
     return (
       <div className="flex relative h-screen w-screen ">
-        <div className=" flex h-full w-auto mx-auto xl:mx-0 xl:w-full overflow-y-auto"
+        <div className=" flex h-full w-full   overflow-y-auto"
         >
           <div className="hidden sm:block sticky top-0 left-0 side-header">
             <SideNavbar authState={authState} />
           </div>
           <TopNavBar />
           <main
-            className="flex w-screen mx-auto  sm:w-[598px] sm:mx-0  pt-8 sm:pt-0 main-content"
+            className="flex flex-col row-auto relative overflow-x-hidden w-full sm:mx-0  pt-8 sm:pt-0"
           >
-            {/* {
-              JSON.stringify(authState)
-            } */}
-            {children}
-
+            {/* <Header /> */}
+            <div className="sm:w-[620px]">
+              {children}
+            </div>
+            <div className="right-side-bar p-5">
+              <RightSideBar />
+            </div>
           </main>
-          <BottomNavBar />
+
+          {/* <BottomNavBar /> */}
         </div>
         {
-          openTweetModal && 
+          openTweetModal &&
           < TweetModal />
         }
       </div>
@@ -54,7 +57,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   }
 }
 function SideNavbar({ authState }: { authState: IUser }) {
-  const searchParams =  useSearchParams()
+  const searchParams = useSearchParams()
   const pathname = usePathname();
 
   const NavBarElements: {
@@ -113,11 +116,11 @@ function SideNavbar({ authState }: { authState: IUser }) {
             <span className="px-3 hidden xl:block" >More</span>
           </Link>
         </ul>
-        < Link 
-          className="xl:flex  items-center py-3 px-3 w-fit rounded-full font-medium  text-white   bg-[#1D9BF0] xl:w-full" 
+        < Link
+          className="xl:flex  items-center py-3 px-3 w-fit rounded-full font-medium  text-white   bg-[#1D9BF0] xl:w-full"
           href={pathname + '?' + 'tweet-modal'}
-          // as="/compose/tweet"
-          >
+        // as="/compose/tweet"
+        >
           <span className="hidden w-full xl:block xl:px-6 text-center">Tweet</span>
           <svg viewBox="0 0 24 24" aria-hidden="true" fill="white" className="block xl:hidden w-6 h-6  mx-auto">
             <path d="M23 3c-6.62-.1-10.38 2.421-13.05 6.03C7.29 12.61 6 17.331 6 22h2c0-1.007.07-2.012.19-3H12c4.1 0 7.48-3.082 7.94-7.054C22.79 10.147 23.17 6.359 23 3zm-7 8h-1.5v2H16c.63-.016 1.2-.08 1.72-.188C16.95 15.24 14.68 17 12 17H8.55c.57-2.512 1.57-4.851 3-6.78 2.16-2.912 5.29-4.911 9.45-5.187C20.95 8.079 19.9 11 16 11zM4 9V6H1V4h3V1h2v3h3v2H6v3H4z">
@@ -216,3 +219,132 @@ export function TopNavBar() {
     </>
   )
 }
+function RightSideBar() {
+  return (
+    <div className="flex flex-col space-y-3">
+      <div className="w-full h-fit relative   rounded-full overflow-hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
+          className="absolute left-4 top-2.5 w-5 h-5 text-gray-700">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+        <input className="p-2.5 pl-12 w-full bg-gray-100 focus:outline-none " placeholder="Search Twitter" />
+      </div>
+      <div className="w-full h-fit relative  bg-gray-100 rounded-xl overflow-hidden p-3">
+        <h1 className="text-xl font-semibold">About this app</h1>
+        <div className="my-3">
+          <ul className="flex flex-col space-y-1 text-sm text-gray-800">
+            <li className="flex"><div className="rounded-full bg-gray-500 w-2 h-2 m-1.5" />This is the deployed version of the app</li>
+            <li className="flex"><div className="rounded-full bg-gray-500 w-2 h-2 m-1.5" />Try creating new tweet, with image</li>
+            <li className="flex"><div className="rounded-full bg-gray-500 w-2 h-2 m-1.5" />Try Retweeting ,Liking and Commenting tweets</li>
+            <li className="flex"><div className="rounded-full bg-gray-500 w-2 h-2 m-1.5" />Try going to users page</li>
+            <li className="flex"><div className="rounded-full bg-gray-500 w-2 h-2 m-1.5" />All the activites done here are getting cache locally</li>
+            <li className="flex"><div className="rounded-full bg-gray-500 w-2 h-2 m-1.5" />Respository of the complete application</li>
+            <li className="flex"><div className="rounded-full bg-gray-500 w-2 h-2 m-1.5" />Created by <span className="font-medium px-2">Siddhant Deshmukh</span></li>
+          </ul>
+        </div>
+      </div>
+      <div className="w-full h-fit relative  bg-gray-100 rounded-xl overflow-hidden pt-3">
+        <h1 className="text-xl font-semibold p-2">What's Happening</h1>
+        <ul className="">
+          <li className="p-3 hover:bg-gray-200 hover:cursor-pointer">
+            <div className="flex justify-between w-full">
+              <div className="flex items-center text-gray-700 text-xs">
+                IPL
+                <span>.</span>
+                14 Minutes ago
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-gray-700">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+              </svg>
+            </div>
+            <h1 className="font-semibold  text-gray-800">Royal Challengers Bangalore vs Lucknow Super Giants</h1>
+            <div className="text-xs text-gray-700 py-1">
+              10,400 Tweets
+            </div>
+          </li>
+          <li className="p-3 hover:bg-gray-200 hover:cursor-pointer">
+            <div className="flex justify-between w-full">
+              <div className="flex items-center text-gray-700 text-xs">
+                Sports
+                <span>.</span>
+                Trending
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-gray-700">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+              </svg>
+            </div>
+            <h1 className="font-semibold  text-gray-800"> Shikhar Dhawan Viral Video</h1>
+            <div className="text-xs text-gray-700 py-1">
+              1,20,999 Tweets
+            </div>
+          </li>
+          <li className="p-3 hover:bg-gray-200 hover:cursor-pointer">
+            <div className="flex justify-between w-full">
+              <div className="flex items-center text-gray-700 text-xs">
+                Indian Premier Leagure
+                <span>.</span>
+                Trending
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-gray-700">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+              </svg>
+            </div>
+            <h1 className="font-semibold  text-gray-800">#LetsGetMarried</h1>
+            <div className="text-xs text-gray-700 py-1">
+              1,400 Tweets
+            </div>
+          </li>
+          <li className="p-3 hover:bg-gray-200 hover:cursor-pointer">
+            <div className="flex justify-between w-full">
+              <div className="flex items-center text-gray-700 text-xs">
+                Trending in India
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-gray-700">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+              </svg>
+            </div>
+            <h1 className="font-semibold  text-gray-800">Election Commission</h1>
+            <div className="text-xs text-gray-700 py-1">
+              11K Tweets
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+function Header() {
+  const router = useRouter()
+  return (
+    <h1 className='flex w-full h-fit sticky space-x-10 p-3 left-0 top-0   sm:w-[620px] z-50 opacity-90 bg-white'>
+      <button
+        onClick={(event) => { event.preventDefault(); router.back() }}>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+      </button>
+      <span className='text-xl font-semibold'>
+        Meow
+      </span>
+    </h1>
+  )
+}
+
+{/* <h1 className='flex w-full space-x-10 p-3 sticky top-0 opacity-90 bg-white'>
+  <button
+    onClick={(event) => { event.preventDefault(); router.back() }}>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+    </svg>
+  </button>
+  <span className='text-xl font-semibold'>
+    Tweet
+   
+  </span>
+</h1> */}
+{/* <h1 className='flex w-full space-x-10 p-3 sticky top-0 opacity-90 bg-white'>
+
+<span className='text-xl font-semibold'>
+  Home
+</span>
+</h1> */}

@@ -57,7 +57,7 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
             {
               tweet.media.map((ele, index) => {
                 return <div className={`w-full h-full rounded-xl overflow-hidden relative ${(tweet.media?.length === 3 && index === 0) ? 'row-span-2' : ''} `} key={ele.url}>
-                  <img src={ele.url} className="w-full object-none h-full max-h-[600px]" />
+                  <img src={ele.url} className="w-full object-cover h-full max-h-[600px]" />
                 </div>
               })
             }
