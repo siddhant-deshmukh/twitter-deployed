@@ -1,4 +1,5 @@
 import { IUser } from '@/models/User'
+import Image from 'next/image'
 import React from 'react'
 
 const UserDetails = ({ authorDetails }: { authorDetails: IUser }) => {
@@ -7,7 +8,7 @@ const UserDetails = ({ authorDetails }: { authorDetails: IUser }) => {
             <div className='w-full relative'>
                 <div className='h-48 bg-gradient-to-r to-blue-400 from-gray-200 w-full'></div>
                 <div className='absolute w-fit h-fit left-5 top-28'>
-                    <img className='w-36 h-36 rounded-full  p-1 bg-white' src={authorDetails.avatar} />
+                    <Image width={144} height={144} alt="image"  className='w-36 h-36 rounded-full  p-1 bg-white' src={authorDetails.avatar || ""} />
                 </div>
                 <div className='w-full px-4 py-2'>
                     <div className='flex w-fit ml-auto mb-5'>

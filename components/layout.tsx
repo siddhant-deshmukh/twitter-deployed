@@ -7,6 +7,7 @@ import Login from "./Login"
 import { HomeSVG, ExploreSVG, NotificationSVG, MsgsSVG, BookmarksSVG, ProfileSVG, MoreSVG, DangerSVG, TweetIcon } from "./svgElemets"
 import { usePathname, useSearchParams } from 'next/navigation';
 import TweetModal from "./modals/TweetModal"
+import Image from "next/image"
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { authLoading, authState, setAuthState } = useContext(AuthContext)
@@ -28,25 +29,29 @@ export default function Layout({ children }: { children: ReactNode }) {
   } else {
     return (
       <div className="flex relative h-screen w-screen ">
-        <div className=" flex h-full w-full   overflow-y-auto"
+        <div className=" flex h-full w-full   "
         >
-          <div className="hidden sm:block sticky top-0 left-0 side-header">
-            <SideNavbar authState={authState} />
-          </div>
+
           <TopNavBar />
           <main
-            className="flex flex-col row-auto relative overflow-x-hidden w-full sm:mx-0  pt-8 sm:pt-0"
+            className="relative overflow-y-auto w-full sm:mx-0 side-left-padding  pt-8 sm:pt-0"
           >
-            {/* <Header /> */}
-            <div className="sm:w-[620px]">
-              {children}
-            </div>
-            <div className="right-side-bar p-5">
-              <RightSideBar />
+            <div className="flex w-fit">
+              <div className="hidden sm:block sticky  top-0 h-screen w-fit px-2 border-r  border-r-gray-200">
+                <SideNavbar authState={authState} />
+              </div>
+              {/* <Header /> */}
+              <div className="w-full  sm2:w-[620px] sm2:min-w-[620px] md:mr-auto mr-0  ">
+                <div className="hidden w-full">..........</div>
+                {children}
+              </div>
+              <div className="hidden w-[320px] lg:w-[385px] md:block sticky top-0  h-fit  pl-5">
+                <RightSideBar />
+              </div>
             </div>
           </main>
 
-          {/* <BottomNavBar /> */}
+          <BottomNavBar />
         </div>
         {
           openTweetModal &&
@@ -76,7 +81,7 @@ function SideNavbar({ authState }: { authState: IUser }) {
   const router = useRouter();
 
   return (
-    <header className="ml-auto hidden sm:flex border-r  border-r-gray-200 flex-col px-1.5 xl:px-4 py-2   h-full justify-between  sm:w-[68px] xl:w-[272px] ">
+    <header className="ml-auto hidden sm:flex  flex-col px-1.5 xl:px-4 py-2   h-full justify-between  sm:w-[68px] xl:w-[272px] ">
       <div className="flex flex-col px-1">
         <Link href={'/home'} className="p-2 mx-1 hover:bg-blue-50 w-fit rounded-full">
           <TweetIcon fill={'#1D9BF0'} />
@@ -132,7 +137,7 @@ function SideNavbar({ authState }: { authState: IUser }) {
       <button className="xl:flex space-x-3 items-center p-2.5 w-full rounded-full font-medium hover:bg-gray-200  xl:w-full">
         {
           authState && authState.avatar
-          && <img className="rounded-full bg-black hover:opacity-70 w-12 h-12 user-link" src={authState.avatar} />
+          && <Image alt="user" width={48} height={48} className="rounded-full bg-black hover:opacity-70 w-12 h-12 user-link" src={authState.avatar} />
         }
         {
           (!authState || !authState.avatar) && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-12 h-12 user-link border border-black rounded-full">
@@ -150,7 +155,7 @@ function SideNavbar({ authState }: { authState: IUser }) {
 function BottomNavBar() {
   return (
     <>
-      <ul className="fixed flex border-t shadow justify-between  w-full sm:hidden bottom-0 left-0  h-12 ">
+      <ul className="fixed bg-white  flex border-t shadow justify-between  w-full sm:hidden bottom-0 left-0  h-12 ">
         <Link href='/home' className="flex place-content-center  group text-base items-center hover:bg-gray-200 w-full  text-gray-900">
           <HomeSVG fill='none' strokeWidth="1.75" />
         </Link>
@@ -164,8 +169,8 @@ function BottomNavBar() {
           <MsgsSVG fill='none' strokeWidth="1.75" />
         </Link>
       </ul>
-      <Link className="absolute right-2 bottom-16 block sm:hidden   py-3 px-3 w-fit rounded-full font-medium  text-white   bg-[#1D9BF0] md:w-full" href="?compose=tweet" as="/compose/tweet">
-        <svg viewBox="0 0 24 24" aria-hidden="true" fill="white" className="block md:hidden w-7 h-7  mx-auto">
+      <Link className="absolute right-5 bottom-16 block sm:hidden   p-4 w-fit rounded-full font-medium  text-white   bg-[#1D9BF0] md:w-full" href="?compose=tweet" as="/compose/tweet">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="white" className="block md:hidden w-8 h-8  mx-auto">
           <path d="M23 3c-6.62-.1-10.38 2.421-13.05 6.03C7.29 12.61 6 17.331 6 22h2c0-1.007.07-2.012.19-3H12c4.1 0 7.48-3.082 7.94-7.054C22.79 10.147 23.17 6.359 23 3zm-7 8h-1.5v2H16c.63-.016 1.2-.08 1.72-.188C16.95 15.24 14.68 17 12 17H8.55c.57-2.512 1.57-4.851 3-6.78 2.16-2.912 5.29-4.911 9.45-5.187C20.95 8.079 19.9 11 16 11zM4 9V6H1V4h3V1h2v3h3v2H6v3H4z">
           </path>
         </svg>
@@ -177,7 +182,7 @@ export function TopNavBar() {
   const [drawerToggle, setDrawerToggle] = useState(false)
   return (
     <>
-      <ul className="absolute flex border-t shadow justify-between  w-full sm:hidden top-0 left-0  h-8 ">
+      <ul className="fixed z-50 flex border-t bg-white shadow justify-between  w-full sm:hidden top-0 left-0  h-8 ">
         <button
           onClick={(event) => {
             event.preventDefault();

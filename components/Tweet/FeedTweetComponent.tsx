@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import useTweetsCache from "@/hooks/useTweetsCache";
 import useUserCache from "@/hooks/useUserCache";
+import Image from "next/image";
 
 const FeedTweetComponent = React.memo(({ tweet_id }: {
   tweet_id: string,
@@ -57,7 +58,7 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
             {
               tweet.media.map((ele, index) => {
                 return <div className={`w-full h-full rounded-xl overflow-hidden relative ${(tweet.media?.length === 3 && index === 0) ? 'row-span-2' : ''} `} key={ele.url}>
-                  <img src={ele.url} className="w-full object-cover h-full max-h-[600px]" />
+                  <Image width={1000} height={1000} alt="image" src={ele.url || ""} className="w-full object-cover h-full max-h-[600px]" />
                 </div>
               })
             }
@@ -137,7 +138,7 @@ export function AuthorAvatar({ author_id }: { author_id: string }) {
     <Link href={`#`} className="w-[68px] px-2 h-fit  user-link">
       {
         authorDetails && authorDetails.avatar
-        && <img className="rounded-full bg-black hover:opacity-70 w-12 h-12 user-link" src={authorDetails.avatar} />
+        && <Image width={48} height={48} alt="avatar" className="rounded-full bg-black hover:opacity-70 w-12 h-12 user-link" src={authorDetails.avatar} />
       }
       {
         (!authorDetails || !authorDetails.avatar) && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.0} stroke="currentColor" className="w-10 h-10 user-link">

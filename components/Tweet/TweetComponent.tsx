@@ -1,6 +1,7 @@
 import useTweetsCache from "@/hooks/useTweetsCache";
 import useUserCache from "@/hooks/useUserCache";
 import { ITweet } from "@/models/Tweet";
+import Image from "next/image";
 import Link from "next/link";
 
 export function TweetComponent({ tweet_id, tweet, updateTweet }: { 
@@ -31,16 +32,16 @@ export function TweetComponent({ tweet_id, tweet, updateTweet }: {
           </div>
           {
             tweet.media && tweet.media.length > 0 &&
-            <div className={` my-2 
+            <div className={` my-2 gap-1
               ${(tweet.media.length > 1) ? 'grid  grid-cols-2 h-96' : ''} 
               ${(tweet.media.length > 2) ? 'grid-rows-2' : ''} `}>
               {
                 tweet.media.map((ele, index) => {
                   return <div className={`w-full h-full rounded-xl overflow-hidden relative ${(tweet.media?.length === 3 && index === 0) ? 'row-span-2' : ''} `} key={ele.url}>
-                    {
+                    {/* {
                       ele.url
-                    }
-                    <img src={`${ele.url}`} className="w-full h-full max-h-[600px]" />
+                    } */}
+                    <Image width={1000} height={1000}  alt="image" src={ele.url || ""} className="w-full object-cover h-full max-h-[600px]" />
                   </div>
                 })
               }
@@ -134,7 +135,7 @@ function AuthorDetails({ author_id }: { author_id: string }) {
     <Link href={`#`} className="w-fit flex h-fit user-link space-x-2 items-center">
       {
         authorDetails && authorDetails.avatar
-        && <img className="rounded-full bg-black hover:opacity-70 w-12 h-12 user-link" src={authorDetails.avatar} />
+        && <Image  width={48} height={48} alt="image"  className="rounded-full bg-black hover:opacity-70 w-12 h-12 user-link" src={authorDetails.avatar || ""} />
       }
       {
         (!authorDetails || !authorDetails.avatar) && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-12 h-12 user-link border border-black rounded-full">
