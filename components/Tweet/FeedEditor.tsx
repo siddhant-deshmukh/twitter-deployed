@@ -6,6 +6,7 @@ import { useCallback, useContext, useRef, useState } from "react";
 import { KeyedMutator, State, useSWRConfig } from "swr";
 import { AuthorAvatar } from "./FeedTweetComponent";
 import { BlobServiceClient } from "@azure/storage-blob"
+import Image from "next/image";
 
 
 export function FeedTweetEditor({ mutateOwnTweets }: {
@@ -109,7 +110,7 @@ export function FeedTweetEditor({ mutateOwnTweets }: {
                           })
                         }}
                       >X</button>
-                      <img src={ele.url} className="w-full h-full max-h-[600px]" />
+                      <img alt="image" src={ele.url || ""} className="w-full h-full max-h-[600px]" />
                     </div>
                   })
                 }
@@ -338,7 +339,7 @@ export function CommentFeedCommentEditor({ user_id, parent_tweet_id }: { user_id
                       })
                     }}
                   >X</button>
-                  <img src={ele.url} className="w-full h-full max-h-[600px]" />
+                  <img alt="image" src={ele.url || ""} className="w-full h-full max-h-[600px]" />
                 </div>
               })
             }
