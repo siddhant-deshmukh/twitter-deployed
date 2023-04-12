@@ -10,12 +10,12 @@ import { BlobSASPermissions, BlobServiceClient, generateBlobSASQueryParameters, 
 
 type Data = { tweet: ITweet, media_ids?: mongoose.Types.ObjectId[] } | { msg: string } | ITweet[]
 
-const connectionString = process.env.BLOB_CONNECTION_STRING as string;
-const accountName = process.env.BLOB_ACCOUNT_NAME as string;
-const accountKey = process.env.BLOB_ACCOUNT_KEY as string;
+// const connectionString = process.env.BLOB_CONNECTION_STRING as string;
+// const accountName = process.env.BLOB_ACCOUNT_NAME as string;
+// const accountKey = process.env.BLOB_ACCOUNT_KEY as string;
 
-const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-const sharedKeyCredential = new StorageSharedKeyCredential(accountName, accountKey);
+// const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+// const sharedKeyCredential = new StorageSharedKeyCredential(accountName, accountKey);
 
 const permissions_towrite = new BlobSASPermissions();
 permissions_towrite.create = true;

@@ -15,7 +15,12 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
-      
+      {
+        protocol: 'https',
+        hostname: 'twitterclone.blob.core.windows.net',
+        port: '',
+        pathname: '/**',
+      },
     ],
     
   },

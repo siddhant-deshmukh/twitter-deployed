@@ -43,11 +43,11 @@ mongoose.connect(mongo_url)
         tweets = res__.tweets
 
         // console.log('\n\n\nbefore modify users', Object.keys(tweets))
-        users = ModifyUsers(tweets, users)
+        users = await ModifyUsers(tweets, users)
 
         // console.log(users)
         await UpdateUsers(users)
-        // console.log(users)
+        console.log('\n\nDone!')
     })
     .catch((err) => { console.error("Unable to connect database", err) })
 
