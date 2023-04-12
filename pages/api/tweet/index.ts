@@ -7,6 +7,8 @@ import User from '../../../models/User'
 import { getUserSession } from '@/lib/getUserFromToken'
 import Media, { IMedia } from '@/models/Media'
 import { BlobSASPermissions, BlobServiceClient, generateBlobSASQueryParameters, StorageSharedKeyCredential } from '@azure/storage-blob'
+import Liked from '@/models/Liked'
+import Retweet from '@/models/Retweet'
 
 type Data = { tweet: ITweet, media_ids?: mongoose.Types.ObjectId[] } | { msg: string } | ITweet[]
 
@@ -43,7 +45,7 @@ export default async function handler(
         const { skip, limit } = req.query
         // console.log(skip,limit)
         // console.log(`${(skip)?Number(skip):0}`,`${(limit)?Number(skip):5}`)
-        const tweets = await Tweet.aggregate([
+        let tweets = await Tweet.aggregate([
             {
                 $match: {
                     parent_tweet : { $exists : false  }
@@ -52,86 +54,8 @@ export default async function handler(
             { $sort: { time: -1 } },
             { $skip: (skip) ? Number(skip) : 0 },
             { $limit: (limit) ? Number(limit) : 5 },
-            {
-                $lookup:
-                {
-                    from: "users",
-                    localField: "author",
-                    foreignField: "_id",
-                    pipeline: [
-                        { $project: { avatar: 1, user_name: 1, name: 1, about: 1 } }
-                    ],
-
-                    as: "authorDetails"
-                }
-            },
-            {
-                $lookup:
-                {
-                    from: "likes",
-                    let: { tweet_author: { $toObjectId: user._id }, tweet_id: { $toObjectId: "$_id" } },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $and: [
-                                        { $eq: ["$tweetId", "$$tweet_id"] },
-                                        { $eq: ["$userId", "$$tweet_author"] },
-                                    ]
-                                }
-                            },
-                        },
-                    ],
-
-                    as: "have_liked"
-                }
-            },
-            {
-                $lookup:
-                {
-                    from: "retweets",
-                    let: { tweet_author: { $toObjectId: user._id }, tweet_id: { $toObjectId: "$_id" } },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $and: [
-                                        { $eq: ["$tweetId", "$$tweet_id"] },
-                                        { $eq: ["$userId", "$$tweet_author"] },
-                                    ]
-                                }
-                            }
-
-                        },
-                    ],
-
-                    as: "have_retweeted"
-                }
-            },
-            {
-                $lookup: {
-                    from: 'media',
-                    localField: 'media',
-                    foreignField: '_id',
-                    as: 'media'
-                }
-            },
-            {
-                $set: {
-                    authorDetails: { $arrayElemAt: ["$authorDetails", 0] },
-                    have_liked: { $cond: [{ $gte: [{ $size: '$have_liked' }, 1] }, true, false] },
-                    have_retweeted: { $cond: [{ $gte: [{ $size: '$have_retweeted' }, 1] }, true, false] },
-                    // have_liked : { $arrayElemAt: ["$have_liked", 0] },
-                    // have_retweeted : { $arrayElemAt: ["$have_retweeted", 0] },
-                }
-            },
-            // {
-            //     $project : {
-            //         have_retweeted : 1 , have_liked : 1
-            //     }
-            // }
         ])
-
+        tweets = await AddExtrasOnTweets(tweets, user._id)
         console.log('was here', skip, limit)
         if (limit === '1') {
             return res.status(200).json(tweets || {})
@@ -219,7 +143,54 @@ async function CreateMediaFilesAndTokens(mediaFiles: IMedia[], tweet: ITweetStor
     return mediaIds_
 }
 
+export async function AddExtrasOnTweets(tweets : ITweetStored[],user_id : string | mongoose.Types.ObjectId){
+    const userId = new mongoose.Types.ObjectId(user_id)
 
+    const tweets_ = await Promise.all(tweets.map(async (tweet,index)=>{
+        const isLiked = await Liked.exists({tweetId:tweet._id, userId})
+        const isRetweeted = await Retweet.exists({tweetId:tweet._id, userId})
+        let media : (IMedia)[] = []
+        if(tweet.media){
+            let _media : (IMedia | null)[] = await Promise.all(tweet.media?.map(async (media_id)=>{
+                let media_ : IMedia | null= await Media.findById(media_id)
+                return (media_ && media_.url)?media_:null
+            }))
+            //@ts-ignore
+            media = _media.filter(ele=>(ele))
+        }
+        return  {
+            ...tweet, 
+            have_liked:(isLiked)?true:false, 
+            have_retweeted:(isRetweeted)?true:false,
+            media
+        } 
+    }))
+    return tweets_
+}
+// async function AddExtrasOnTweets(tweets : ITweetStored[],userId : mongoose.Types.ObjectId){
+//     const tweets_ = await Promise.all(tweets.map(async (tweet,index)=>{
+//         const isLiked = await Liked.exists({tweetId:tweet._id, userId})
+//         const isRetweeted = await Retweet.exists({tweetId:tweet._id, userId})
+//         return  {
+//             ...tweet, 
+//             have_liked:(isLiked)?true:false, 
+//             have_retweeted:(isRetweeted)?true:false
+//         } 
+//     }))
+//     return tweets_
+// }
+// async function AddExtrasOnTweets(tweets : ITweetStored[],userId : mongoose.Types.ObjectId){
+//     const tweets_ = await Promise.all(tweets.map(async (tweet,index)=>{
+//         const isLiked = await Liked.exists({tweetId:tweet._id, userId})
+//         const isRetweeted = await Retweet.exists({tweetId:tweet._id, userId})
+//         return  {
+//             ...tweet, 
+//             have_liked:(isLiked)?true:false, 
+//             have_retweeted:(isRetweeted)?true:false
+//         } 
+//     }))
+//     return tweets_
+// }
 /* 
 s
 You can give object-level permissions using SAS token in Azure Blob Storage using JavaScript by creating a SAS token with appropriate permissions and then using it to authenticate your request to upload an image to that blob². Here are the general steps:

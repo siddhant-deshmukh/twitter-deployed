@@ -9,16 +9,21 @@ import useSWR, { useSWRConfig } from 'swr'
 import useSWRInfinite from "swr/infinite";
 import Tweet from '@/components/Tweet/FeedTweetComponent'
 import { ITweet } from '@/models/Tweet'
+import useUserCache from '@/hooks/useUserCache'
 
 
 export default function TweetPage() {
     const router = useRouter()
     const { tweet_id } = router.query
     const { tweet, loading, updateTweet } = useTweetsCache(tweet_id)
+    const { authorDetails, loading: authorLoading, error: authorError } = useUserCache(tweet?.author)
 
     if (tweet && tweet._id && tweet_id && typeof tweet_id === 'string') {
         return (
             <div className='w-full'>
+                <Head>
+                    <title>{(authorDetails?.name)?(authorDetails?.name +' on'):''  }  Twitter</title>
+                </Head>
                 <h1 className='flex w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-90 bg-white'>
                     <button
                         onClick={(event) => { event.preventDefault(); router.back() }}>

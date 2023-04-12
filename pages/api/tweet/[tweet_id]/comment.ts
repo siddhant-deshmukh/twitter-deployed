@@ -5,6 +5,7 @@ import mongoose from 'mongoose'
 import Tweet, { ITweet } from '../../../../models/Tweet'
 import User from '../../../../models/User'
 import { getUserSession } from '@/lib/getUserFromToken'
+import { AddExtrasOnTweets } from '..'
 
 type Data = ITweet[] | { msg: string }
 
@@ -35,52 +36,11 @@ export default async function handler(
     }
     const parent_tweet_id = new mongoose.Types.ObjectId(parent_tweet as string)
     // console.log(tweet_id)
-    const comments = await Tweet.aggregate([
+    let comments = await Tweet.aggregate([
       { $match: { parent_tweet: parent_tweet_id } },
       { $sort: { time: -1 } },
       { $skip: (skip) ? Number(skip) : 0 },
       { $limit: (limit) ? Number(limit) : 5 },
-      {
-        $lookup:
-        {
-          from: "likes",
-          let: { tweet_author: { $toObjectId: user._id }, tweet_id: { $toObjectId: "$_id" } },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$tweetId", "$$tweet_id"] },
-                    { $eq: ["$userId", "$$tweet_author"] },
-                  ]
-                }
-              },
-            },
-          ],
-          as: "have_liked"
-        }
-      },
-      {
-        $lookup:
-        {
-          from: "retweets",
-          let: { tweet_author: { $toObjectId: user._id }, tweet_id: { $toObjectId: "$_id" } },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$tweetId", "$$tweet_id"] },
-                    { $eq: ["$userId", "$$tweet_author"] },
-                  ]
-                }
-              }
-            },
-          ],
-
-          as: "have_retweeted"
-        }
-      },
       {
         $set: {
           authorDetails: { $arrayElemAt: ["$authorDetails", 0] },
@@ -92,6 +52,7 @@ export default async function handler(
       },
     ])
     // console.log('here to look tweet',tweet_id)
+    comments = await AddExtrasOnTweets(comments,user._id)
     if (comments.length > 0) {
       res.status(200).json(comments)
     } else {
