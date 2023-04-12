@@ -5,6 +5,7 @@ import mongoose from 'mongoose'
 import Tweet, { ITweet } from '../../../../models/Tweet'
 import User from '../../../../models/User'
 import { getUserSession } from '@/lib/getUserFromToken'
+import { AddExtrasOnTweets } from '..'
 
 type Data = ITweet | { msg: string }
 
@@ -33,132 +34,14 @@ export default async function handler(
   }
   const tweetid = new mongoose.Types.ObjectId(tweet_id as string)
   // console.log(tweet_id)
-  const tweets = await Tweet.aggregate([
-    { $match: { _id: tweetid } },
-    // {
-    //   $lookup:
-    //   {
-    //     from: "users",
-    //     localField: "author",
-    //     foreignField: "_id",
-    //     pipeline: [
-    //       { $project: { avatar: 1, user_name: 1, name: 1, about: 1 } }
-    //     ],
-
-    //     as: "authorDetails"
-    //   }
-    // },
-    {
-      $lookup:
-      {
-        from: "likes",
-        let: { tweet_author: { $toObjectId: user._id }, tweet_id: { $toObjectId: "$_id" } },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$tweetId", "$$tweet_id"] },
-                  { $eq: ["$userId", "$$tweet_author"] },
-                ]
-              }
-            },
-          },
-        ],
-
-        as: "have_liked"
-      }
-    },
-    {
-      $lookup:
-      {
-        from: "retweets",
-        let: { tweet_author: { $toObjectId: user._id }, tweet_id: { $toObjectId: "$_id" } },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$tweetId", "$$tweet_id"] },
-                  { $eq: ["$userId", "$$tweet_author"] },
-                ]
-              }
-            }
-
-          },
-        ],
-
-        as: "have_retweeted"
-      }
-    },
-    {
-      $lookup : {
-        from : 'media',
-        localField : 'media',
-        foreignField: '_id',
-        as : 'media'
-      }
-    },
-
-    {
-      $set: {
-        authorDetails: { $arrayElemAt: ["$authorDetails", 0] },
-        have_liked: { $cond: [{ $gte: [{ $size: '$have_liked' }, 1] }, true, false] },
-        have_retweeted: { $cond: [{ $gte: [{ $size: '$have_retweeted' }, 1] }, true, false] },
-        // mediaFile: {
-
-        //   $map: {
-        //     input: "$media",
-        //     as: "media_id",
-        //     in: {
-        //       $lookup: {
-        //         from: "media",
-        //         pipeline: [
-        //           {
-        //             $match: {
-        //               $expr: {
-        //                 $eq: ["$_id", "$$media_id"] ,
-        //               }
-        //             }
-        //           },
-        //         ],
-
-        //         as: "media"
-        //       }
-        //     }
-        //   }
-
-        // }
-        // have_liked : { $arrayElemAt: ["$have_liked", 0] },
-        // have_retweeted : { $arrayElemAt: ["$have_retweeted", 0] },
-      }
-    },
+  let tweets = await Tweet.aggregate([
+    { $match: { _id: tweetid } },  
   ])
   // console.log('here to look tweet',tweet_id)
+  tweets = await AddExtrasOnTweets(tweets, user._id)
   if (tweets.length > 0) {
     res.status(200).json(tweets[0])
   } else {
     res.status(404).json({ msg: 'Tweet not found' })
   }
 }
-/**
- 
-$lookup: {
-            from: "media",
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $and: [
-                      { $eq: ["$tweetId", "$$tweet_id"] },
-                      { $eq: ["$userId", "$$tweet_author"] },
-                    ]
-                  }
-                }
-
-              },
-            ],
-
-            as: "media"
-          }
- */
