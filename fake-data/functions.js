@@ -35,7 +35,7 @@ function create_users() {
             user_name: faker.internet.userName().slice(0, 10),
             dob: faker.date.birthdate({ min: 14 }),
             email: faker.internet.email().slice(0, 40),
-            avatar: faker.internet.avatar(),
+            // avatar: faker.internet.avatar(),
             about: faker.lorem.paragraphs().slice(0, 150),
             followers: [],
             following: [],
@@ -57,10 +57,11 @@ async function UploadUsers(Users_array, blobServiceClient) {
         console.log(new_user._id)
         if (new_user && new_user._id) {
             user_ids.push(new_user._id.toString())
-            users[new_user._id.toString()] = new_user
-            User.findByIdAndUpdate(new_user._id, { avatar: `${blob_url}/${new_user._id.toString()}/avatar` })
-                .then(() => { "Sucessfully updated!" })
-                .catch((err) => { "Some error occured while updating avatar", err })
+            new_user.avatar = `${blob_url}/${new_user._id.toString()}/avatar`
+            // users[new_user._id.toString()] = new_user
+            // User.findByIdAndUpdate(new_user._id, { avatar: `${blob_url}/${new_user._id.toString()}/avatar` })
+            //     .then(() => { "Sucessfully updated!" })
+            //     .catch((err) => { "Some error occured while updating avatar", err })
             UploadImage(blobServiceClient, new_user._id.toString(), 'avatar', 'avatar')
         }
 
@@ -89,10 +90,10 @@ function addFollowersFollowings(userIds, users) {
 }
 
 
-function create_tweets(userIds, users) {
+function create_tweets(userIds, users, num_tweets) {
     const tweets_array = []
-
-    for (var i = 0; i < NUM_TWEETS; i++) {
+    let nTweets = (num_tweets) ? num_tweets : NUM_TWEETS
+    for (var i = 0; i < nTweets; i++) {
 
         let new_tweet = {
             text: faker.lorem.paragraphs().slice(0, 350),
@@ -101,6 +102,7 @@ function create_tweets(userIds, users) {
         users[new_tweet.author].num_tweets = (users[new_tweet.author].num_tweets || 0) + 1
         tweets_array.push(new_tweet)
     }
+    // console.log(tweets_array , 'original <------ \n\n\n',users)
     return { tweets_array, users }
 }
 
@@ -127,7 +129,7 @@ async function UploadTweets(tweets_array, blobServiceClient) {
                 tweet_ids.push(new_tweet._id.toString())
                 console.log('tweet_id', new_tweet._id, 'num media', numMedia, media)
                 new_tweet.media = media
-                tweets[new_tweet._id.toString()] = new_tweet 
+                tweets[new_tweet._id.toString()] = new_tweet
 
 
             }
@@ -138,14 +140,15 @@ async function UploadTweets(tweets_array, blobServiceClient) {
 }
 
 
-var total_comments = 20
-function AddCommets(tweets, users, tweets_id) {
+var total_comments = 10
+function AddCommets(tweets, users, tweets_id,num_comments) {
     // let tweets_id = Object.keys(tweets)
     let users_id = Object.keys(users)
     let comments = []
+    console.log(tweets,tweets_id)
 
-    for (var i = 0; i < total_comments; i++) {
-        let random_tweet_id = tweets_id[Math.floor(Math.random() * 5)]
+    for (var i = 0; i < num_comments ; i++) {
+        let random_tweet_id = tweets_id[Math.floor(Math.random() * tweets_id.length)]
         let random_user_id = users_id[Math.floor(Math.random() * users_id.length)]
         // let random_tweet_id = tweets_id[Math.floor(Math.random() * 5)]
         let new_tweet = {
@@ -161,24 +164,24 @@ function AddCommets(tweets, users, tweets_id) {
 async function UploadComments(comment_array, tweets) {
     const comment_ids = []
     // const tweets = {}
-    await Promise.all(comment_array.map(async (tweet, index) => {
-        // console.log(tweet)
+    for(let tweet of comment_array){
         await Tweet.create(tweet).then((new_tweet) => {
             if (new_tweet && new_tweet._id) {
                 comment_ids.push(new_tweet._id.toString())
                 tweets[new_tweet._id.toString()] = new_tweet
             }
         })
-    }))
+    }
+    
     console.log('UploadComments : ', comment_ids)
     return { comment_ids, tweets }
 }
 
-function ModifyUsers(tweets, users) {
+async function ModifyUsers(tweets, users) {
     let userIds = Object.keys(users)
     let tweet_ids = Object.keys(tweets)
-
-    tweet_ids.forEach((tweet_id) => {
+    // tweet_ids.forEach((tweet_id) => {
+    for (let tweet_id of tweet_ids) {
         // console.log(c_user,tweets[tweet_id]['author'])
 
         let liked_by = []
@@ -187,7 +190,7 @@ function ModifyUsers(tweets, users) {
             let new__ = Math.floor(Math.random() * userIds.length)
             if (liked_by.findIndex(ele => ele === userIds[new__]) === -1) {
                 liked_by.push(userIds[new__])
-                Liked.create({
+                await Liked.create({
                     userId: userIds[new__],
                     tweetId: tweet_id,
                 })
@@ -197,7 +200,7 @@ function ModifyUsers(tweets, users) {
             let new__ = Math.floor(Math.random() * userIds.length)
             if (retweet_by.findIndex(ele => ele === userIds[new__]) === -1) {
                 retweet_by.push(userIds[new__])
-                Retweet.create({
+                await Retweet.create({
                     userId: userIds[new__],
                     tweetId: tweet_id,
                 })
@@ -205,17 +208,9 @@ function ModifyUsers(tweets, users) {
         }
         tweets[tweet_id].num_likes = liked_by.length
         tweets[tweet_id].num_retweet = retweet_by.length
-        Tweet.findByIdAndUpdate(tweet_id, tweets[tweet_id])
-            .then((aaa) => {
-                // console.log(tweet_id, aaa)
-            })
-            .catch((err) => {
-                // console.log('some err occured',err)
-            })
-            .finally(() => {
-                // console.log("Do something!!")
-            })
-    })
+        await Tweet.findByIdAndUpdate(tweet_id, tweets[tweet_id])
+
+    }
     console.log('Modify Tweets', tweets)
     return users
 }
@@ -225,10 +220,7 @@ async function UpdateUsers(users) {
     }))
     // console.log('Update Users',users)
 }
-module.exports = {
-    UploadUsers, create_users, addFollowersFollowings, create_tweets, ModifyUsers,
-    UploadTweets, UpdateUsers, AddCommets, UploadComments
-}
+
 async function CreateMedia(blobServiceClient, tweet_id, author_id, index) {
     const new_media = await Media.create({
         author: author_id,
@@ -248,12 +240,15 @@ function UploadImage(blobServiceClient, container_name, blob_name, file_type, me
     const containerClient = blobServiceClient.getContainerClient(container_name);
 
     if (file_type === 'avatar') {
-        img_url = faker.image.avatar()
+        let random = Math.random()
+        let type = (random>0.6)?'women':'men'
+        img_url = `https://randomuser.me/api/portraits/${type}/${Math.floor(random*80)}.jpg`
+        console.log(img_url)
         https.get(img_url, function (res) {
             var data = [];
             const contentType = res.headers['content-type'];
             // console.log(res)
-            console.log(contentType)
+            // console.log(contentType)
 
             res.on('data', function (chunk) {
                 data.push(chunk);
@@ -322,4 +317,20 @@ function UploadImage(blobServiceClient, container_name, blob_name, file_type, me
             console.log("Some err occured could not create container", err)
         })
     }
+}
+async function GetUsers() {
+    const Users_array = await User.find({})
+    let users = {}
+    for(let user of Users_array){
+        users[user._id.toString()] = user
+    }
+    return users
+}
+async function DeleteUsers() {
+
+}
+
+module.exports = {
+    UploadUsers, create_users, addFollowersFollowings, create_tweets, ModifyUsers,
+    UploadTweets, UpdateUsers, AddCommets, UploadComments, UploadImage, GetUsers, CreateMedia
 }
