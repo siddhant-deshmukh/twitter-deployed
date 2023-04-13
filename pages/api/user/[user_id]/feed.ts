@@ -47,9 +47,10 @@ export default async function handler(
             { $limit: (limit) ? Number(limit) : 5 },
         ])
         tweets = await Promise.all(liked_by_user.map(async (liked)=>{
-            return await Tweet.findById(liked.tweetId)
+            const tweet = await Tweet.findById(liked.tweetId)
+            return tweet._doc
         }))
-
+        // console.log(tweets)
     } else {
         tweets = await Tweet.aggregate([
             { $match: { author: userid } },
