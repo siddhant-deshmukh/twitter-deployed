@@ -8,6 +8,7 @@ import { HomeSVG, ExploreSVG, NotificationSVG, MsgsSVG, BookmarksSVG, ProfileSVG
 import { usePathname, useSearchParams } from 'next/navigation';
 import TweetModal from "./modals/TweetModal"
 import Image from "next/image"
+import Loading from "./Loading"
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { authLoading, authState, setAuthState } = useContext(AuthContext)
@@ -18,9 +19,13 @@ export default function Layout({ children }: { children: ReactNode }) {
   console.log('search parameters ', searchParams.has('tweet-modal'))
   if (authLoading) {
     return (
-      <div className='w-screen h-screen bg-contain  bg-left-bottom bg-no-repeat flex items-center'
-      style={{ backgroundImage: 'url("3d-twitter.png")' }}>
-        
+      // bg-contain  bg-left-bottom bg-no-repeat
+      <div className='flex w-screen h-screen   items-center'
+      >
+        <img src="3d-twitter.png" className="h-full w-auto" />
+        <div className="w-full">
+          <Loading size={14} />
+        </div>
       </div>
     )
   } else if (!(authState && authState._id)) {
@@ -82,8 +87,8 @@ function SideNavbar({ authState }: { authState: IUser }) {
   const router = useRouter();
 
   return (
-    <header className="ml-auto hidden sm:flex  flex-col px-1.5 xl:px-4 py-2   h-full justify-between  sm:w-[68px] xl:w-[272px] ">
-      <div className="flex flex-col px-1">
+    <header className="ml-auto hidden sm:flex  flex-col px-1.5 xl:px-0.5 pt-2 pb-3   h-full justify-between  sm:w-[68px] xl:w-[272px] ">
+      <div className="flex flex-col px-1 xl:px-[18px]">
         <Link href={'/home'} className="p-2 mx-1 hover:bg-blue-50 w-fit rounded-full">
           <TweetIcon fill={'#1D9BF0'} />
         </Link>
@@ -97,19 +102,19 @@ function SideNavbar({ authState }: { authState: IUser }) {
             <HomeSVG fill='none' strokeWidth="1.75" />
             <span className="px-3 hidden xl:block" >Home</span>
           </Link>
-          <Link href='/' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+          <Link href='#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <ExploreSVG fill='none' strokeWidth="1.75" />
             <span className="px-3 hidden xl:block" >Explore</span>
           </Link>
-          <Link href='/#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+          <Link href='#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <NotificationSVG fill='none' strokeWidth="1.75" />
             <span className="px-3 hidden xl:block" >Notifications</span>
           </Link>
-          <Link href='/#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+          <Link href='#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <MsgsSVG fill='none' strokeWidth="1.75" />
             <span className="px-3 hidden xl:block" >Messages</span>
           </Link>
-          <Link href='/#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+          <Link href='#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <BookmarksSVG fill='none' strokeWidth="1.75" />
             <span className="px-3 hidden xl:block" >Bookmarks</span>
           </Link>
@@ -117,7 +122,7 @@ function SideNavbar({ authState }: { authState: IUser }) {
             <ProfileSVG fill='none' strokeWidth="1.75" />
             <span className="px-3 hidden xl:block">Profile</span>
           </Link>
-          <Link href='/#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
+          <Link href='#' className="flex group text-xl items-center space-x-2 hover:bg-gray-200 w-fit p-2 rounded-full text-gray-900">
             <MoreSVG fill='none' strokeWidth="1.75" />
             <span className="px-3 hidden xl:block" >More</span>
           </Link>
@@ -135,7 +140,7 @@ function SideNavbar({ authState }: { authState: IUser }) {
         </Link>
       </div>
 
-      <button className="xl:flex space-x-3 items-center p-2.5 w-full rounded-full font-medium hover:bg-gray-200  xl:w-full">
+      <button className="inline-flex space-x-2.5 items-center p-2.5 w-full rounded-full font-medium hover:bg-gray-100  xl:w-full">
         {
           authState && authState.avatar
           && <Image alt="user" width={48} height={48} className="rounded-full bg-black hover:opacity-70 w-12 h-12 user-link" src={authState.avatar} />
@@ -145,10 +150,14 @@ function SideNavbar({ authState }: { authState: IUser }) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
           </svg>
         }
-        <div className="flex flex-col">
-          <div className="user-link w-fit text-base font-bold hover:underline">{authState.name}</div>
-          <div className="user-link w-fit text-sm  text-gray-500">@{authState?.user_name}</div>
+        <div className="hidden min-w-0 xl:block max-w-full "> 
+          <div className="user-link min-w-0 text-base font-semibold  truncate ... overflow-hidden">{authState.name}</div>
+          <div className="user-link max-w-full text-left text-sm  text-gray-500">@{authState?.user_name}</div>
         </div>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="hidden  xl:block w-7 h-7">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+        </svg>
+
       </button>
     </header>
   )
