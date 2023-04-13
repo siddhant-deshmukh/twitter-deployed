@@ -18,7 +18,8 @@ export default function Layout({ children }: { children: ReactNode }) {
   console.log('search parameters ', searchParams.has('tweet-modal'))
   if (authLoading) {
     return (
-      <div className="w-screen h-screen" style={{backgroundImage : 'url("twitter-3d-bg.jpeg")'}}>
+      <div className='w-screen h-screen bg-contain  bg-left-bottom bg-no-repeat flex items-center'
+      style={{ backgroundImage: 'url("3d-twitter.png")' }}>
         
       </div>
     )

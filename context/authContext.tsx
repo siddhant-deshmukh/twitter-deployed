@@ -17,7 +17,7 @@ export const AuthContextProvider = ({ children }) => {
     const [authLoading, setAuthLoading] = useState<boolean>(true)
     useEffect(()=>{
         setAuthLoading(true)
-        fetch('/api/hello')
+        fetch('/api/check')
             .then((res)=>res.json())
             .then((data)=>{
                 if(data && data._id){
