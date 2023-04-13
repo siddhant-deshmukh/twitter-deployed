@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { TweetComponent } from '../../components/Tweet/TweetComponent'
 import { useRouter } from 'next/router'
-import { CommentFeedCommentEditor } from '@/components/Tweet/FeedEditor'
+// import { CommentFeedCommentEditor } from '@/components/Tweet/FeedEditor'
 import useTweetsCache from '@/hooks/useTweetsCache'
 import { useCallback, useContext } from 'react'
 import { AuthContext } from '@/context/authContext'
@@ -10,6 +10,8 @@ import useSWRInfinite from "swr/infinite";
 import Tweet from '@/components/Tweet/FeedTweetComponent'
 import { ITweet } from '@/models/Tweet'
 import useUserCache from '@/hooks/useUserCache'
+import Loading from '@/components/Loading'
+import { MainFeedTweetEditor } from '@/components/modals/TweetModal'
 
 
 export default function TweetPage() {
@@ -22,7 +24,7 @@ export default function TweetPage() {
         return (
             <div className='w-full'>
                 <Head>
-                    <title>{(authorDetails?.name)?(authorDetails?.name +' on'):''  }  Twitter</title>
+                    <title>{(authorDetails?.name) ? (authorDetails?.name + ' on') : ''}  Twitter</title>
                 </Head>
                 <h1 className='flex w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-90 bg-white'>
                     <button
@@ -43,7 +45,8 @@ export default function TweetPage() {
                             JSON.stringify(tweet)
                         } */}
                         <TweetComponent tweet_id={tweet_id} tweet={tweet} updateTweet={updateTweet} />
-                        <CommentFeedCommentEditor user_id={tweet?.author} parent_tweet_id={tweet_id} />
+                        {/* <CommentFeedCommentEditor user_id={tweet?.author} parent_tweet_id={tweet_id} /> */}
+                        < MainFeedTweetEditor parent_tweet_author={tweet?.author} parent_tweet_id={tweet_id} />
                         <CommentFeed tweet_id={tweet_id} />
                     </div>
 
@@ -100,8 +103,17 @@ const CommentFeed = ({ tweet_id }: { tweet_id: string }) => {
     // })
     const { data: ownComments } = useSWR(`/own_comment/${tweet_id}`, (str: string) => {
         const feed = cache.get(`own_comment/${tweet_id}`)
+        console.log("Here in own comment!", feed)
         return feed
+    }, {
+        revalidateOnFocus: true,
     })
+    // const { data: ownTweets, mutate: mutateOwnTweets } = useSWR('/own/tweetfeed', (str: string) => {
+    //     const feed = cache.get('own/tweetfeed')
+    //     return feed
+    // }, {
+    //     revalidateOnFocus: true,
+    // })
     const { data: CommentsFeed, mutate: mutateTweetFeed, size, setSize, isValidating, isLoading } = useSWRInfinite(
         (index) => `/api/tweet/${tweet_id}/comment?skip=${index * pageLength}&limit=${pageLength}`,
         fetchTweetFeed,
@@ -123,9 +135,9 @@ const CommentFeed = ({ tweet_id }: { tweet_id: string }) => {
                                 {tweet_id && <Tweet tweet_id={tweet_id} />}
                             </div>
                         })}
-                        {/* {
-                JSON.stringify(ownComments)
-            } */}
+                        {
+                            JSON.stringify(ownComments)
+                        }
                     </div>
                 }
                 {
@@ -139,6 +151,12 @@ const CommentFeed = ({ tweet_id }: { tweet_id: string }) => {
                             </div>
                         })
                     })
+                }
+                {
+                    isValidating &&
+                    <div className='w-fit mx-auto mt-5'>
+                        <Loading />
+                    </div>
                 }
             </div>
 

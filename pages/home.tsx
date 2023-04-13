@@ -1,19 +1,22 @@
 import Head from 'next/head'
 import Tweet from '../components/Tweet/FeedTweetComponent'
 import { ITweet } from '@/models/Tweet'
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import useSWRInfinite from "swr/infinite";
 import { useSWRConfig } from 'swr'
 import useSWR from 'swr'
 // import useSWRInfinite from "swr/infinite";
 import { FeedTweetEditor } from '@/components/Tweet/FeedEditor'
 import { AuthContext } from '@/context/authContext';
+import Loading from '@/components/Loading';
+import { MainFeedTweetEditor } from '@/components/modals/TweetModal';
 // import { SWRConfig } from 'swr'
 
 const pageLength = 5
 export default function Home() {
   const { refreshInterval, cache, mutate } = useSWRConfig()
   const { setAuthState } = useContext(AuthContext)
+  const [hasMore, setHasMore] = useState<boolean>(true)
 
   const fetchTweetFeed = useCallback(async (url: string) => {
     const data = await fetch(url, {
@@ -26,6 +29,9 @@ export default function Home() {
       }
       return res.json()
     });
+    if (data.length === 0) {
+      setHasMore(false)
+    }
     const tweetIds = data.map((tweet: ITweet) => {
 
       const exist_ = cache
@@ -38,7 +44,7 @@ export default function Home() {
     })
     console.log("data", url, tweetIds)
     return tweetIds
-  }, [cache])
+  }, [cache, setHasMore])
 
   const { data: ownTweets, mutate: mutateOwnTweets } = useSWR('/own/tweetfeed', (str: string) => {
     const feed = cache.get('own/tweetfeed')
@@ -46,7 +52,7 @@ export default function Home() {
   }, {
     revalidateOnFocus: true,
   })
-  const { data: TweetFeed, mutate: mutateTweetFeed, size, setSize, isValidating, isLoading } = useSWRInfinite(
+  const { data: TweetFeed, mutate: mutateTweetFeed, size, setSize, isValidating, isLoading: TweetFeedLoading } = useSWRInfinite(
     (index) => `/api/tweet?skip=${index * pageLength}&limit=${pageLength}`,
     fetchTweetFeed,
     {
@@ -80,14 +86,35 @@ export default function Home() {
 
   }, [cache])
 
+  const load_more = useRef(null)
+  const observerCallback = useCallback((entries: IntersectionObserverEntry[]) => {
+    const target = entries[0]
+    console.log("Is intersection!", isValidating, hasMore)
+    if (target.isIntersecting && (!isValidating) && hasMore) {
+      console.log("Get ready!")
+      setSize(size + 1)
+    }
+  }, [load_more, size, hasMore, setSize, isValidating])
   useEffect(() => {
-    console.log('Cache', cache)
-
+    console.log(cache)
   }, [cache])
+  useEffect(() => {
+    const observer = new IntersectionObserver(observerCallback, {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.25
+    })
+    if (load_more && load_more.current) observer.observe(load_more.current);
+    return () => {
+      if (load_more.current) observer.unobserve(load_more.current);
+    }
+    // console.log('Cache', cache)
+
+  }, [observerCallback])
   return (
     <div className='w-full'>
       <Head>
-        <title>Twitter</title>
+        <title>Home / Twitter</title>
       </Head>
       <h1 className='flex w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-90 bg-white'>
 
@@ -96,7 +123,8 @@ export default function Home() {
         </span>
       </h1>
       <div className="w-full">
-        < FeedTweetEditor mutateOwnTweets={mutateOwnTweets} />
+        <MainFeedTweetEditor />
+        {/* < FeedTweetEditor mutateOwnTweets={mutateOwnTweets} /> */}
         {/* {
           JSON.stringify(ownTweets)
         } */}
@@ -110,6 +138,7 @@ export default function Home() {
             </div>
           })
         }
+
         {
           TweetFeed &&
           TweetFeed.map((page: string[] | [], pageNum) => {
@@ -123,10 +152,14 @@ export default function Home() {
           })
         }
       </div>
-      <button onClick={() => setSize(size + 1)}>Load More</button>
-      {/* {
-        JSON.stringify(TweetFeed)
-      } */}
+      {/* <button onClick={() => setSize(size + 1)}>Load More</button> */}
+      {
+        isValidating &&
+        <div className='w-fit mx-auto mt-5'>
+          <Loading />
+        </div>
+      }
+      <div ref={load_more}></div>
     </div>
   )
 }

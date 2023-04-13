@@ -9,6 +9,7 @@ import useSWR from 'swr'
 import useSWRInfinite from "swr/infinite";
 import { AuthContext } from '@/context/authContext'
 import Tweet from '@/components/Tweet/FeedTweetComponent'
+import Loading from '@/components/Loading'
 
 export default function UserPage() {
     const router = useRouter()
@@ -31,7 +32,7 @@ export default function UserPage() {
     } else {
         return (
             <div className='w-full'>
-                
+
                 <h1 className='flex w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-90 bg-white'>
                     <button
                         onClick={(event) => { event.preventDefault(); router.back() }}>
@@ -122,7 +123,7 @@ function UserTweetFeed({ author_id }: { author_id: string | string[] }) {
         return []
     })
 
-    const { data: TweetFeed, mutate: mutateTweetFeed, size, setSize, isValidating, isLoading } = useSWRInfinite(
+    const { data: TweetFeed, mutate: mutateTweetFeed, size, setSize, isValidating : TwwetFeedValidating, isLoading } = useSWRInfinite(
         (index) => `/api/user/${author_id}/feed?skip=${index * pageLength}&limit=${pageLength}`,
         fetchTweetFeed,
         {
@@ -131,7 +132,7 @@ function UserTweetFeed({ author_id }: { author_id: string | string[] }) {
             revalidateOnReconnect: false
         }
     )
-    const { data: LikedTweetFeed } = useSWRInfinite(
+    const { data: LikedTweetFeed, isValidating : LikedFeedValidating } = useSWRInfinite(
         (index) => `/api/user/${author_id}/feed?skip=${index * pageLength}&limit=${pageLength}&type=liked`,
         fetchTweetFeed,
         {
@@ -156,12 +157,7 @@ function UserTweetFeed({ author_id }: { author_id: string | string[] }) {
                     <div className={`absolute bottom-0 left-1/3 w-1/3 h-1 rounded-sm bg-blue-400 ${(feedType !== 'like') ? "hidden" : 'block'}`}></div>
                 </button>
             </div>
-            <div>
-                Here check this out!
-                {
-                    JSON.stringify(ownTweets)
-                }
-            </div>
+            
             {
                 feedType === 'tweet' && ownTweets &&
                 //@ts-ignore
@@ -195,6 +191,12 @@ function UserTweetFeed({ author_id }: { author_id: string | string[] }) {
                         </div>
                     })
                 })
+            }
+            {
+                (LikedFeedValidating || TwwetFeedValidating) &&
+                <div className='w-fit mx-auto mt-5'>
+                    <Loading />
+                </div>
             }
         </div>
     )
