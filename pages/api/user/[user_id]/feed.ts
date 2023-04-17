@@ -21,7 +21,7 @@ export default async function handler(
     } = req
     await dbConnect()
 
-    console.log(req.cookies)
+    // console.log(req.cookies)
 
     const { user_id, skip, limit, type }: {
         user_id?: string, skip?: string, limit?: string, type?: 'liked' | 'tweets'

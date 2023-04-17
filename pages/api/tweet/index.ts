@@ -56,64 +56,63 @@ export default async function handler(
             { $limit: (limit) ? Number(limit) : 5 },
         ])
         tweets = await AddExtrasOnTweets(tweets, user._id)
-        console.log('was here', skip, limit)
+        // console.log('was here', skip, limit)
         if (limit === '1') {
             return res.status(200).json(tweets || {})
         }
         return res.status(200).json(tweets)
-    } 
-    // else if (method === 'POST') {
-    //     const author_id = user._id
+    } else if (method === 'POST') {
+        const author_id = user._id
 
-    //     const { text, parent_tweet, tweet_attachment, mediaFiles }: {
-    //         text: string, parent_tweet?: string, tweet_attachment?: string, mediaFiles?: IMedia[]
-    //     } = body
-    //     if (
-    //         !author_id || !text ||
-    //         typeof text !== 'string' ||
-    //         text.length > 400 || text.length <= 0
-    //     ) {
-    //         console.log(!author_id, !text, author_id, text, typeof author_id !== 'string', typeof text !== 'string')
-    //         return res.status(400).json({ msg: 'incorrect data given' })
-    //     }
+        const { text, parent_tweet, tweet_attachment, mediaFiles }: {
+            text: string, parent_tweet?: string, tweet_attachment?: string, mediaFiles?: IMedia[]
+        } = body
+        if (
+            !author_id || !text ||
+            typeof text !== 'string' ||
+            text.length > 400 || text.length <= 0
+        ) {
+            // console.log(!author_id, !text, author_id, text, typeof author_id !== 'string', typeof text !== 'string')
+            return res.status(400).json({ msg: 'incorrect data given' })
+        }
 
-    //     try {
-    //         const author = await User.findById(author_id)
-    //         if (!author) return res.status(400).json({ msg: 'incorrect given author_id' })
+        try {
+            const author = await User.findById(author_id)
+            if (!author) return res.status(400).json({ msg: 'incorrect given author_id' })
 
-    //         let parent_check: any;
-    //         if (parent_tweet) {
-    //             parent_check = await Tweet.findById(parent_tweet)
-    //             if (!parent_check) return res.status(404).json({ msg: 'incorrect given parent_tweet' })
-    //         }
+            let parent_check: any;
+            if (parent_tweet) {
+                parent_check = await Tweet.findById(parent_tweet)
+                if (!parent_check) return res.status(404).json({ msg: 'incorrect given parent_tweet' })
+            }
 
-    //         let tweet = await Tweet.create({
-    //             author: author_id,
-    //             parent_tweet,
-    //             text
-    //         })
+            let tweet = await Tweet.create({
+                author: author_id,
+                parent_tweet,
+                text
+            })
 
-    //         let media_ids: mongoose.Types.ObjectId[] = []
-    //         if (mediaFiles) {
-    //             media_ids = await CreateMediaFilesAndTokens(mediaFiles, tweet)
-    //             tweet.media = media_ids
-    //             tweet = await tweet.save()
-    //         }
+            let media_ids: mongoose.Types.ObjectId[] = []
+            if (mediaFiles) {
+                media_ids = await CreateMediaFilesAndTokens(mediaFiles, tweet)
+                tweet.media = media_ids
+                tweet = await tweet.save()
+            }
 
-    //         if (tweet) {
-    //             author.num_tweets = author.num_tweets || 0 + 1
-    //             author.save()
-    //         }
-    //         if (parent_check) {
-    //             parent_check.num_comments = author.num_comments || 0 + 1
-    //             parent_check.save()
-    //         }
-    //         return res.status(200).json({ tweet, media_ids })
-    //     } catch (err) {
-    //         console.log("Some error occured!", err)
-    //     }
-    // } 
-    else {
+            if (tweet) {
+                author.num_tweets = author.num_tweets || 0 + 1
+                author.save()
+            }
+            if (parent_check) {
+                parent_check.num_comments = author.num_comments || 0 + 1
+                parent_check.save()
+            }
+            return res.status(200).json({ tweet, media_ids })
+        } catch (err) {
+            return res.status(501).json({ msg: "Some internal error occured"})
+            // console.log("Some error occured!", err)
+        }
+    } else {
         return res.status(404).json({ msg: "method doesn't exist" })
     }
 }

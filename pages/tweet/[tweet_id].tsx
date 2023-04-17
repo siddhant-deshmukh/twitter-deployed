@@ -103,7 +103,7 @@ const CommentFeed = ({ tweet_id }: { tweet_id: string }) => {
     // })
     const { data: ownComments } = useSWR(`/own_comment/${tweet_id}`, (str: string) => {
         const feed = cache.get(`own_comment/${tweet_id}`)
-        console.log("Here in own comment!", feed)
+        // console.log("Here in own comment!", feed)
         return feed
     }, {
         revalidateOnFocus: true,
