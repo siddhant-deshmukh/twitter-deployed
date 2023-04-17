@@ -9,7 +9,15 @@ export function CacheNewTweet(
     cache: Cache<any>, mutate: ScopedMutator<any>, parent_tweet_id?: string,
 ) {
     if (!authState) return;
-    const prev = (parent_tweet_id) ? cache.get('own/tweetfeed') : cache.get(`own_comment/${parent_tweet_id}`)
+    let prev  = []
+    if(parent_tweet_id){
+        //@ts-ignore
+        prev = cache.get(`own_comment/${parent_tweet_id}`)
+    }else{
+        //@ts-ignore
+        prev = cache.get('own/tweetfeed')
+    }
+    // (parent_tweet_id) ? cache.get('own/tweetfeed') : cache.get(`own_comment/${parent_tweet_id}`)
 
     console.log('previous cache!',prev,typeof parent_tweet_id)
     let text_ = text.replaceAll('<br>', '\n').replaceAll('&nbsp', '')

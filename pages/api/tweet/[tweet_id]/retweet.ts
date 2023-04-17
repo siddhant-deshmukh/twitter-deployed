@@ -53,28 +53,30 @@ export default async function handler(
     } else {
       return res.status(404).json({ msg: 'Tweet not found' })
     }
-  } else if (method === 'POST') {
+  } 
+  // else if (method === 'POST') {
 
-    const isRetweeted = await Retweet.find({tweetId:tweetid,userId:user._id})
-    if(isRetweeted.length > 0){
-      const retweeted = await Retweet.findByIdAndDelete(isRetweeted[0]._id)
-      if(retweeted){
-        tweet.num_retweet -= 1
-        tweet.save()
-      }
-      return res.status(201).json({msg : "Deleted sucessfully!"})
-    }else{  
-      const retweeted = await Retweet.create({
-        tweetId:tweetid,
-        userId:user._id
-      })
-      if(retweeted){
-        tweet.num_retweet += 1
-        tweet.save()
-      }
-      return res.status(201).json({msg : "Created! sucessfully!"})
-    }
-  } else {
+  //   const isRetweeted = await Retweet.find({tweetId:tweetid,userId:user._id})
+  //   if(isRetweeted.length > 0){
+  //     const retweeted = await Retweet.findByIdAndDelete(isRetweeted[0]._id)
+  //     if(retweeted){
+  //       tweet.num_retweet -= 1
+  //       tweet.save()
+  //     }
+  //     return res.status(201).json({msg : "Deleted sucessfully!"})
+  //   }else{  
+  //     const retweeted = await Retweet.create({
+  //       tweetId:tweetid,
+  //       userId:user._id
+  //     })
+  //     if(retweeted){
+  //       tweet.num_retweet += 1
+  //       tweet.save()
+  //     }
+  //     return res.status(201).json({msg : "Created! sucessfully!"})
+  //   }
+  // } 
+  else {
     return res.status(405).json({msg : "Method not allowed"})
 
   }

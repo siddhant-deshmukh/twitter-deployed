@@ -53,28 +53,30 @@ export default async function handler(
     } else {
       return res.status(404).json({ msg: 'Tweet not found' })
     }
-  } else if (method === 'POST') {
+  } 
+  // else if (method === 'POST') {
 
-    const isLiked = await Liked.find({tweetId:tweetid,userId:user._id})
-    if(isLiked.length > 0){
-      const liked = await Liked.findByIdAndDelete(isLiked[0]._id)
-      if(liked){
-        tweet.num_likes -= 1
-        tweet.save()
-      }
-      return res.status(201).json({msg : "Deleted sucessfully!"})
-    }else{  
-      const liked = await Liked.create({
-        tweetId:tweetid,
-        userId:user._id
-      })
-      if(liked){
-        tweet.num_likes += 1
-        tweet.save()
-      }
-      return res.status(201).json({msg : "Created! sucessfully!"})
-    }
-  } else {
+  //   const isLiked = await Liked.find({tweetId:tweetid,userId:user._id})
+  //   if(isLiked.length > 0){
+  //     const liked = await Liked.findByIdAndDelete(isLiked[0]._id)
+  //     if(liked){
+  //       tweet.num_likes -= 1
+  //       tweet.save()
+  //     }
+  //     return res.status(201).json({msg : "Deleted sucessfully!"})
+  //   }else{  
+  //     const liked = await Liked.create({
+  //       tweetId:tweetid,
+  //       userId:user._id
+  //     })
+  //     if(liked){
+  //       tweet.num_likes += 1
+  //       tweet.save()
+  //     }
+  //     return res.status(201).json({msg : "Created! sucessfully!"})
+  //   }
+  // } 
+  else {
     return res.status(405).json({msg : "Method not allowed"})
   }
   // console.log('here to look tweet',tweet_id)

@@ -212,6 +212,8 @@ export function MainFeedTweetEditor({ closeModal, parent_tweet_author, parent_tw
             onClick={(event) => {
               event.preventDefault();
               CacheNewTweet(authState, text, mediaFiles, cache, mutate, parent_tweet_id)
+
+              
               if (newTweetEditorModal.current?.innerText) {
                 //@ts-ignore
                 newTweetEditorModal.current.textContent = ''
