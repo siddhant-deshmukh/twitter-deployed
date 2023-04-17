@@ -10,12 +10,13 @@ import { FeedTweetEditor } from '@/components/Tweet/FeedEditor'
 import { AuthContext } from '@/context/authContext';
 import Loading from '@/components/Loading';
 import { MainFeedTweetEditor } from '@/components/modals/TweetModal';
+import { TopNavBar } from '@/components/layout';
 // import { SWRConfig } from 'swr'
 
 const pageLength = 5
 export default function Home() {
   const { refreshInterval, cache, mutate } = useSWRConfig()
-  const { setAuthState } = useContext(AuthContext)
+  const { authState, setAuthState } = useContext(AuthContext)
   const [hasMore, setHasMore] = useState<boolean>(true)
 
   const fetchTweetFeed = useCallback(async (url: string) => {
@@ -116,11 +117,16 @@ export default function Home() {
       <Head>
         <title>Home / Twitter</title>
       </Head>
-      <h1 className='flex w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-80 bg-white dark:bg-gray-900 dark:bg-opacity-80'>
-
+      <h1 className='hidden sm:flex  w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-80 bg-white dark:bg-black dark:bg-opacity-80'>
         <span className='text-xl font-semibold'>
           Home
         </span>
+      </h1>
+      <h1 className='flex sm:hidden  w-full space-x-10 p-2 sticky top-0 z-50 bg-opacity-80 bg-white dark:bg-black dark:bg-opacity-80'>
+        { 
+          authState &&
+          <TopNavBar authState={authState}/>
+        }
       </h1>
       <div className="w-full">
         <MainFeedTweetEditor />
