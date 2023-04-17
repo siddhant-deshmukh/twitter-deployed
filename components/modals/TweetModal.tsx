@@ -19,11 +19,11 @@ const TweetModal = () => {
     router.push(pathname)
   }
   return (
-    <div className='fixed left-0 right-0 z-50 bg-black bg-opacity-50 w-screen h-screen overflow-y-auto py-14  px-2'>
-      <div className='w-full max-w-[600px] h-fit bg-white mx-auto rounded-2xl overflow-hidden '>
+    <div className='fixed left-0 right-0 z-50 bg-black dark:bg-gray-700 bg-opacity-50 dark:bg-opacity-50 w-screen h-screen overflow-y-auto py-14  px-2'>
+      <div className='w-full max-w-[600px] h-fit bg-white dark:bg-black  mx-auto rounded-2xl overflow-hidden '>
         <header className='flex items-center justify-between   w-full'>
           <button
-            className='w-10 h-10 text-lg hover:bg-gray-200 mt-2 mx-2 rounded-full '
+            className='w-10 h-10 text-lg hover:bg-gray-200 dark:hover:bg-gray-800 mt-2 mx-2 rounded-full '
             onClick={(event) => {
               event.preventDefault();
               closeModal()
@@ -78,11 +78,11 @@ export function MainFeedTweetEditor({ closeModal, parent_tweet_author, parent_tw
 
   return (
     <div
-      className="flex w-full relative space-x-2 px-2 pt-5 border border-gray-200 "
+      className="flex w-full relative space-x-2 px-2 pt-5 border border-gray-200 dark:border-gray-800"
     >
       {
         userDetails?.user_name &&
-        <span className="top-0 left-[88px] absolute z-10 text-gray-600 text-sm">
+        <span className="top-0 left-[88px] absolute z-10 text-gray-600 dark:text-gray-200 text-sm">
           Replying to <span className="text-blue-400">@{userDetails?.user_name || 'Someone'}</span>
         </span>
       }
@@ -136,11 +136,11 @@ export function MainFeedTweetEditor({ closeModal, parent_tweet_author, parent_tw
             </div>
           }
         </div>
-        <div className="flex w-full items-center justify-between border-y border-y-gray-100 py-3 mt-5">
+        <div className="flex w-full items-center justify-between border-y border-y-gray-100 dark:border-y-gray-600 py-3 mt-5">
           <ul className="flex items-center">
             <label form="input-file-TweetModal group" className="relative">
               <button
-                className="w-9 p-2 h-9 rounded-full hover:bg-blue-50 "
+                className="w-9 p-2 h-9 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900 "
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full text-blue-400 ">
                   <path strokeWidth={1.0} d="M3 5.5C3 4.119 4.119 3 5.5 3h13C19.881 3 21 4.119 21 5.5v13c0 1.381-1.119 2.5-2.5 2.5h-13C4.119 21 3 19.881 3 18.5v-13zM5.5 5c-.276 0-.5.224-.5.5v9.086l3-3 3 3 5-5 3 3V5.5c0-.276-.224-.5-.5-.5h-13zM19 15.414l-3-3-5 5-3-3-3 3V18.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-3.086zM9.75 7C8.784 7 8 7.784 8 8.75s.784 1.75 1.75 1.75 1.75-.784 1.75-1.75S10.716 7 9.75 7z" />
@@ -156,7 +156,7 @@ export function MainFeedTweetEditor({ closeModal, parent_tweet_author, parent_tw
             </label>
 
             <button
-              className="w-9 p-2 h-9 rounded-full hover:bg-blue-50"
+              className="w-9 p-2 h-9 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900"
               onClick={(event) => {
                 event.preventDefault()
               }
@@ -166,7 +166,7 @@ export function MainFeedTweetEditor({ closeModal, parent_tweet_author, parent_tw
               </svg>
             </button>
             <button
-              className="w-9 p-2 h-9 rounded-full hover:bg-blue-50"
+              className="w-9 p-2 h-9 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900"
               onClick={(event) => {
                 event.preventDefault()
               }
@@ -176,7 +176,7 @@ export function MainFeedTweetEditor({ closeModal, parent_tweet_author, parent_tw
               </svg>
             </button>
             <button
-              className="w-9 p-2 h-9 rounded-full hover:bg-blue-50"
+              className="w-9 p-2 h-9 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900"
               onClick={(event) => {
                 event.preventDefault()
               }
@@ -186,7 +186,7 @@ export function MainFeedTweetEditor({ closeModal, parent_tweet_author, parent_tw
               </svg>
             </button>
             <button
-              className="w-9 p-2 h-9 rounded-full hover:bg-blue-50"
+              className="w-9 p-2 h-9 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900"
               onClick={(event) => {
                 event.preventDefault()
               }
@@ -196,7 +196,7 @@ export function MainFeedTweetEditor({ closeModal, parent_tweet_author, parent_tw
               </svg>
             </button>
             <button
-              className="w-9 p-2 h-9 rounded-full hover:bg-blue-50"
+              className="w-9 p-2 h-9 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900"
               onClick={(event) => {
                 event.preventDefault()
               }
@@ -208,7 +208,7 @@ export function MainFeedTweetEditor({ closeModal, parent_tweet_author, parent_tw
           </ul>
           {/* Submit tweet button */}
           <button
-            className="px-4 py-1.5 rounded-full bg-blue-400 text-white"
+            className="px-4 py-1.5 rounded-full bg-blue-500 text-white"
             onClick={(event) => {
               event.preventDefault();
               CacheNewTweet(authState, text, mediaFiles, cache, mutate, parent_tweet_id)

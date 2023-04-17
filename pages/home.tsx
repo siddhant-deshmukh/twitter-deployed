@@ -116,7 +116,7 @@ export default function Home() {
       <Head>
         <title>Home / Twitter</title>
       </Head>
-      <h1 className='flex w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-90 bg-white'>
+      <h1 className='flex w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-80 bg-white dark:bg-gray-900 dark:bg-opacity-80'>
 
         <span className='text-xl font-semibold'>
           Home

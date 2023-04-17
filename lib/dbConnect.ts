@@ -1,5 +1,7 @@
 import mongoose from 'mongoose'
 
+
+
 const MONGODB_CONNECTION_STRING = process.env.MONGODB_CONNECTION_STRING
 
 if (!MONGODB_CONNECTION_STRING) {

@@ -33,7 +33,7 @@ export default function UserPage() {
         return (
             <div className='w-full'>
 
-                <h1 className='flex w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-90 bg-white'>
+                <h1 className='flex w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-80 bg-white dark:bg-gray-900 dark:bg-opacity-80'>
                     <button
                         onClick={(event) => { event.preventDefault(); router.back() }}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -143,15 +143,15 @@ function UserTweetFeed({ author_id }: { author_id: string | string[] }) {
     )
     return (
         <div className='w-full'>
-            <div className='flex w-full justify-between h-14 font-medium text-gray-600'>
+            <div className='flex w-full justify-between h-14 font-medium text-gray-600 dark:text-gray-300'>
                 <button
-                    className={`w-full relative hover:bg-gray-200 ${(feedType === 'tweet') ? "text-black" : ''}`}
+                    className={`w-full relative hover:bg-gray-200 dark:hover:bg-gray-800 ${(feedType === 'tweet') ? "text-black dark:text-white" : ''}`}
                     onClick={(event) => { event.preventDefault(); setType('tweet') }}>
                     Tweets
                     <div className={`absolute bottom-0 left-1/3 w-1/3 h-1 rounded-sm bg-blue-400 ${(feedType !== 'tweet') ? "hidden" : 'block'}`}></div>
                 </button>
                 <button
-                    className={`w-full relative hover:bg-gray-200 ${(feedType === 'like') ? "text-black" : ''}`}
+                    className={`w-full relative hover:bg-gray-200 dark:hover:bg-gray-800 ${(feedType === 'like') ? "text-black dark:text-white" : ''}`}
                     onClick={(event) => { event.preventDefault(); setType('like') }}>
                     Liked
                     <div className={`absolute bottom-0 left-1/3 w-1/3 h-1 rounded-sm bg-blue-400 ${(feedType !== 'like') ? "hidden" : 'block'}`}></div>
