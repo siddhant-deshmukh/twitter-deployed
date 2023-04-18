@@ -3,9 +3,9 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source : '/',
-        destination : '/home',
-        permanent : false,
+        source: '/',
+        destination: '/home',
+        permanent: false,
       }
     ]
   },
@@ -31,7 +31,10 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
-    
+
   },
+  ignorePatterns: [
+    "azure-function/",
+  ],
 }
 module.exports = nextConfig

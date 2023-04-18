@@ -5,13 +5,10 @@ import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import useSWRInfinite from "swr/infinite";
 import { useSWRConfig } from 'swr'
 import useSWR from 'swr'
-// import useSWRInfinite from "swr/infinite";
-import { FeedTweetEditor } from '@/components/Tweet/FeedEditor'
 import { AuthContext } from '@/context/authContext';
 import Loading from '@/components/Loading';
-import { MainFeedTweetEditor } from '@/components/modals/TweetModal';
-import { TopNavBar } from '@/components/layout';
-// import { SWRConfig } from 'swr'
+import TweetEditor from '@/components/Tweet/TweetEditor';
+import TopNavBar from '@/components/Layout/TopNavbar';
 
 const pageLength = 5
 export default function Home() {
@@ -45,7 +42,7 @@ export default function Home() {
     })
     console.log("data", url, tweetIds)
     return tweetIds
-  }, [cache, setHasMore])
+  }, [cache, setHasMore, setAuthState])
 
   const { data: ownTweets, mutate: mutateOwnTweets } = useSWR('/own/tweetfeed', (str: string) => {
     const feed = cache.get('own/tweetfeed')
@@ -95,7 +92,7 @@ export default function Home() {
       console.log("Get ready!")
       setSize(size + 1)
     }
-  }, [load_more, size, hasMore, setSize, isValidating])
+  }, [size, hasMore, setSize, isValidating])
   useEffect(() => {
     console.log(cache)
   }, [cache])
@@ -129,7 +126,7 @@ export default function Home() {
         }
       </h1>
       <div className="w-full">
-        <MainFeedTweetEditor />
+        <TweetEditor />
         {/* < FeedTweetEditor mutateOwnTweets={mutateOwnTweets} /> */}
         {/* {
           JSON.stringify(ownTweets)

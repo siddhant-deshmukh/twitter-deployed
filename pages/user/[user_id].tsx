@@ -24,8 +24,8 @@ export default function UserPage() {
                 </Head>
 
 
-                <div className='w-full'>
-                    Loading
+                <div className='w-full py-5'>
+                    <Loading size={8} />
                 </div>
             </div>
         )
@@ -69,16 +69,19 @@ function UserInfo({ author_id }: { author_id: string | string[] }) {
                     }
                 </div>
 
-                {/* {
-                JSON.stringify(TweetFeed)
-              } */}
+            </div>
+        )
+    } else if (authorError) {
+        return (
+            <div className='w-full'>
+                <div className='py-10 px-5 w-full text-center text-red-500'>Some Error Occured</div>
             </div>
         )
     } else {
         return (
             <div className='w-full'>
                 <div className='w-full'>
-                    Loading
+                    <Loading />
                 </div>
             </div>
         )
@@ -123,7 +126,7 @@ function UserTweetFeed({ author_id }: { author_id: string | string[] }) {
         return []
     })
 
-    const { data: TweetFeed, mutate: mutateTweetFeed, size, setSize, isValidating : TwwetFeedValidating, isLoading } = useSWRInfinite(
+    const { data: TweetFeed, mutate: mutateTweetFeed, size, setSize, isValidating: TwwetFeedValidating, isLoading } = useSWRInfinite(
         (index) => `/api/user/${author_id}/feed?skip=${index * pageLength}&limit=${pageLength}`,
         fetchTweetFeed,
         {
@@ -132,7 +135,7 @@ function UserTweetFeed({ author_id }: { author_id: string | string[] }) {
             revalidateOnReconnect: false
         }
     )
-    const { data: LikedTweetFeed, isValidating : LikedFeedValidating } = useSWRInfinite(
+    const { data: LikedTweetFeed, isValidating: LikedFeedValidating } = useSWRInfinite(
         (index) => `/api/user/${author_id}/feed?skip=${index * pageLength}&limit=${pageLength}&type=liked`,
         fetchTweetFeed,
         {
@@ -157,7 +160,7 @@ function UserTweetFeed({ author_id }: { author_id: string | string[] }) {
                     <div className={`absolute bottom-0 left-1/3 w-1/3 h-1 rounded-sm bg-blue-400 ${(feedType !== 'like') ? "hidden" : 'block'}`}></div>
                 </button>
             </div>
-            
+
             {
                 feedType === 'tweet' && ownTweets &&
                 //@ts-ignore

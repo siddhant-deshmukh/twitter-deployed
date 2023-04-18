@@ -1,6 +1,7 @@
 import mongoose,{ Schema, model, connect } from "mongoose";
 
-let db=null;
+//@ts-ignore
+let db  =null;
 
 const UserSchema = new Schema({
     email: {type:String,required:true,unique:true,maxLength:40,minlength:4},
