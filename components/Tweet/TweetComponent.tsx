@@ -4,8 +4,8 @@ import { ITweet } from "@/models/Tweet";
 import Image from "next/image";
 import Link from "next/link";
 
-export function TweetComponent({ tweet_id, tweet, updateTweet }: { 
-  tweet_id: string, 
+export function TweetComponent({ tweet_id, tweet, updateTweet }: {
+  tweet_id: string,
   tweet: ITweet | undefined,
   updateTweet: (what: "liked" | "retweeted" | "add-comment") => void
 }) {
@@ -18,7 +18,7 @@ export function TweetComponent({ tweet_id, tweet, updateTweet }: {
     <div
       id={`${tweet._id}`}
       className="flex w-full px-2 py-1 border-r  border-r-gray-200 dark:border-r-gray-800">
-        
+
       <div className="w-full flex flex-col px-3 pt-3 ">
         <div className="w-full">
           {
@@ -41,7 +41,7 @@ export function TweetComponent({ tweet_id, tweet, updateTweet }: {
                     {/* {
                       ele.url
                     } */}
-                    <Image width={1000} height={1000}  alt="image" src={ele.url || ""} className="w-full object-cover h-full max-h-[600px]" />
+                    <Image width={1000} height={1000} alt="image" src={ele.url || ""} className="w-full object-cover h-full max-h-[600px]" />
                   </div>
                 })
               }
@@ -131,22 +131,35 @@ export function TweetComponent({ tweet_id, tweet, updateTweet }: {
 function AuthorDetails({ author_id }: { author_id: string }) {
   const { authorDetails, loading: authorLoading, error: authorError } = useUserCache(author_id)
 
-  return (
-    <Link href={`#`} className="w-fit flex h-fit user-link space-x-2 items-center">
-      {
-        authorDetails && authorDetails.avatar
-        && <Image  width={48} height={48} alt="image"  className="rounded-full bg-black hover:opacity-70 w-12 h-12 user-link" src={authorDetails.avatar || ""} />
-      }
-      {
-        (!authorDetails || !authorDetails.avatar) && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-12 h-12 user-link border border-black rounded-full">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-        </svg>
-      }
-      <div className="flex flex-col">
-        <Link href={`/user/${author_id}`} className="user-link w-fit text-base font-bold hover:underline">{authorDetails?.name}</Link>
-        <Link href={`/user/${author_id}`} className="user-link w-fit text-sm  text-gray-400">@{authorDetails?.user_name}</Link>
+  if (authorLoading) {
+    return (
+      <div className="w-fit animate-pulse flex h-fit user-link space-x-2 items-center">
+        <div className="rounded-full  bg-gray-800 hover:opacity-70 w-12 h-12 user-link" />
+        <div className="flex flex-col space-y-2">
+          <div className="user-link w-44 bg-gray-800 h-2.5  text-base font-bold hover:underline"></div>
+          <div className="user-link w-32 bg-gray-800 h-2.5 text-sm  text-gray-400"></div>
+        </div>
       </div>
 
-    </Link>
-  )
+    )
+  } else {
+    return (
+      <Link href={`/user/${author_id}`} className="w-fit flex h-fit user-link space-x-2 items-center">
+        {
+          authorDetails && authorDetails.avatar
+          && <Image width={48} height={48} alt="image" className="rounded-full bg-black hover:opacity-70 w-12 h-12 user-link" src={authorDetails.avatar || ""} />
+        }
+        {
+          (!authorDetails || !authorDetails.avatar) && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-12 h-12 user-link border border-black rounded-full">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+          </svg>
+        }
+        <div className="flex flex-col">
+          <Link href={`/user/${author_id}`} className="user-link w-fit text-base font-bold hover:underline">{authorDetails?.name}</Link>
+          <Link href={`/user/${author_id}`} className="user-link w-fit text-sm  text-gray-400">@{authorDetails?.user_name}</Link>
+        </div>
+
+      </Link>
+    )
+  }
 }

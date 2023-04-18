@@ -136,6 +136,12 @@ export default FeedTweetComponent
 export function AuthorAvatar({ author_id }: { author_id: string }) {
   const { authorDetails, loading: authorLoading, error: authorError } = useUserCache(author_id)
 
+  if(authorLoading){
+    return  (
+      <div className="rounded-full  animate-pulse bg-gray-800 hover:opacity-70 w-12 min-w-[48px] h-12 user-link" />
+    )
+
+  }
   return (
     <Link href={`#`} className="w-[68px] px-2 h-fit  user-link">
       {
@@ -147,17 +153,23 @@ export function AuthorAvatar({ author_id }: { author_id: string }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
         </svg>
       }
-
+ 
     </Link>
   )
 }
 function AuthorDetails({ author_id }: { author_id: string }) {
   const { authorDetails, loading: authorLoading, error: authorError } = useUserCache(author_id)
 
-  return (
-    <>
-      <Link href={`/user/${author_id}`} className="user-link w-fit text-base font-bold hover:underline">{authorDetails?.name}</Link>
-      <Link href={`/user/${author_id}`} className="user-link w-fit text-sm  text-gray-500">@{authorDetails?.user_name}</Link>
-    </>
-  )
+  if(authorLoading){
+    return (
+      <div className="user-link animate-pulse w-44 mt-2 bg-gray-800 h-3  text-base font-bold hover:underline"></div>
+    )
+  }else {
+    return (
+      <>
+        <Link href={`/user/${author_id}`} className="user-link w-fit text-base font-bold hover:underline">{authorDetails?.name}</Link>
+        <Link href={`/user/${author_id}`} className="user-link w-fit text-sm  text-gray-500">@{authorDetails?.user_name}</Link>
+      </>
+    )
+  }
 }

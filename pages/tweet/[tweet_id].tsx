@@ -26,7 +26,7 @@ export default function TweetPage() {
         <Head>
           <title>{(authorDetails?.name) ? (authorDetails?.name + ' on') : ''}  Twitter</title>
         </Head>
-        <h1 className='flex w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-80 bg-white dark:bg-gray-900'>
+        <h1 className='flex w-full space-x-10 p-3 sticky top-0 z-50 bg-opacity-80 bg-white dark:bg-black'>
           <button
             onClick={(event) => { event.preventDefault(); router.back() }}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">

@@ -1,10 +1,13 @@
 import { AuthContext } from '@/context/authContext'
 import React, { useContext, useState } from 'react'
+import Loading from '../Loading'
 
 const Login = () => {
 
   const { setAuthState, authLoading, setAuthLoading } = useContext(AuthContext)
   const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string>()
+
   const login = () => {
     fetch('/api/hello')
       .then((res) => res.json())
@@ -12,6 +15,10 @@ const Login = () => {
         if (data && data._id) {
           setAuthState(data)
         }
+      })
+      .catch((err) => {
+        console.error("While getting access", err)
+        setError("Some error occured")
       })
       .finally(() => {
         setLoading(false)
@@ -43,6 +50,24 @@ const Login = () => {
             <p className='my-6 text-center mx-auto w-fit max-w-xs '>
               A basic twitter clone made using NextJS, SWR and MongoDB
             </p>
+            { 
+              error  && error.length > 0 && 
+              <div className="flex items-center p-2 mb-4 justify-between text-sm text-red-800 rounded-lg bg-red-50 dark:bg-red-400 dark:text-white" role="alert">
+                <span>{error}</span>
+                <button 
+                  onClick={(event)=>{
+                    event.preventDefault()
+                    setError('')
+                  }}
+                  className='text-base p-1 px-2 hover:bg-red-300 rounded-full'>X</button>
+              </div>
+            }
+            {
+              loading &&
+              <div className='w-full'>
+                <Loading />
+              </div>
+            }
             <div className='mx-auto w-fit my-20'>
               <button className='text-black bg-white  focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xl sm:w-auto px-5 py-2.5 text-center '
                 disabled={loading}
@@ -51,7 +76,6 @@ const Login = () => {
                   setLoading(true)
                   if (loading) return;
                   login();
-                  setAuthLoading(true)
                 }}>
                 Get Temprary Acess
               </button>

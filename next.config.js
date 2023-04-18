@@ -33,8 +33,5 @@ const nextConfig = {
     ],
 
   },
-  ignorePatterns: [
-    "azure-function/",
-  ],
 }
 module.exports = nextConfig
