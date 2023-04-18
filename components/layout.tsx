@@ -74,6 +74,7 @@ function SideNavbar({ authState }: { authState: IUser }) {
 
   const router = useRouter();
 
+  const [showHiddenMenu, setToggle] = useState<boolean>(false)
   return (
     <header className="ml-auto hidden sm:flex  flex-col px-1.5 xl:px-0.5 pt-2 pb-3   h-full justify-between  sm:w-[68px] xl:w-[272px] ">
       <div className="flex flex-col px-1 xl:px-[18px]">
@@ -128,25 +129,40 @@ function SideNavbar({ authState }: { authState: IUser }) {
         </Link>
       </div>
 
-      <button className="inline-flex space-x-2.5 items-center p-2.5 w-full rounded-full font-medium hover:bg-gray-100 dark:hover:bg-gray-800 xl:w-full">
-        {
-          authState && authState.avatar
-          && <Image alt="user" width={48} height={48} className="rounded-full bg-black hover:opacity-70 w-12 min-w-[48px] h-12 user-link" src={authState.avatar} />
-        }
-        {
-          (!authState || !authState.avatar) && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-12 h-12 user-link border border-black rounded-full">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-          </svg>
-        }
-        <div className="hidden min-w-0 xl:block max-w-full ">
-          <div className="user-link min-w-0 text-base font-semibold  truncate ... overflow-hidden">{authState.name}</div>
-          <div className="user-link max-w-full text-left text-sm  text-gray-500">@{authState?.user_name}</div>
-        </div>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="hidden  xl:block w-7 h-7">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
-        </svg>
 
-      </button>
+
+      <div className="relative w-full">
+        <button
+          onClick={(event) => {
+            event.preventDefault()
+            console.log("Meow")
+            setToggle(prev => !prev)
+          }}
+          className="flex space-x-2.5 items-center p-2.5 w-full rounded-full font-medium hover:bg-gray-100 dark:hover:bg-gray-800 xl:w-full" >
+          {
+            authState && authState.avatar
+            && <Image alt="user" width={48} height={48} className="rounded-full bg-black hover:opacity-70 w-12 min-w-[48px] h-12 user-link" src={authState.avatar} />
+          }
+          {
+            (!authState || !authState.avatar) && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-12 h-12 user-link border border-black rounded-full">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+          }
+          <div className="hidden min-w-0 xl:block max-w-full ">
+            <div className="user-link min-w-0 text-base font-semibold  truncate ... overflow-hidden">{authState.name}</div>
+            <div className="user-link max-w-full text-left text-sm  text-gray-500">@{authState?.user_name}</div>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="hidden  xl:block w-7 h-7">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+          </svg>
+
+        </button>
+        <div className={`${(showHiddenMenu)?'block':'hidden'} absolute -left-5 -top-24 shadow dark:shadow-gray-600 rounded-2xl border dark:bg-black dark:border-gray-800  w-[300px]  z-50`}>
+          <button className="w-full font-medium text-lg text-left p-5 hover:bg-gray-100 dark:hover:bg-gray-900 ">
+            Log out @{authState.user_name}
+          </button>
+        </div>
+      </div>
     </header>
   )
 }
