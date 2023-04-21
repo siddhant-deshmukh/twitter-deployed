@@ -1,12 +1,14 @@
-import { AuthContext } from "@/context/authContext"
 import { ReactNode, useContext } from "react"
-import Login from "./Login"
 import { useSearchParams } from 'next/navigation';
-import TweetModal from "../modals/TweetModal"
+
+import { AuthContext } from "@/context/authContext"
+
+import Login from "./Login"
 import Loading from "../Loading"
 import SideNavbar from "./SideNavbar"
 import BottomNavBar from "./BottomNavbar"
 import RightSideBar from "./RightSidebar"
+import TweetModal from "../modals/TweetModal"
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { authLoading, authState, setAuthState } = useContext(AuthContext)
@@ -39,9 +41,10 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className=" flex h-full w-full">
 
           <main
+            id="main-element"
             className="relative overflow-y-auto w-full sm:mx-0 side-left-padding pt-13 sm:pt-0   pb-12  sm:pb-0"
           >
-            <div className="flex w-fit">
+            <div className="flex w-fit min-w-fit max-w-full">
               <div className="hidden sm:block sticky  top-0 h-screen w-fit px-2 border-r  border-r-gray-200 dark:border-gray-800">
                 <SideNavbar authState={authState} />
               </div>

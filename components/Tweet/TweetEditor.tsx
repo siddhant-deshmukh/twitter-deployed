@@ -101,8 +101,8 @@ function TweetEditor({ closeModal, parent_tweet_author, parent_tweet_id }: {
             </div>
           }
         </div>
-        <div className="flex w-full items-center justify-between border-y border-y-gray-100 dark:border-y-gray-600 py-3 mt-5">
-          <ul className="flex items-center">
+        <div className="flex flex-col sm:flex-row w-full items-center justify-between border-y border-y-gray-100 dark:border-y-gray-600 py-3 mt-5">
+          <ul className="flex items-center mr-auto w-fit sm:mr-0 sm:w-auto">
             <label form="input-file-TweetModal group" className="relative">
               <button
                 className="w-9 p-2 h-9 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900 "
@@ -173,7 +173,7 @@ function TweetEditor({ closeModal, parent_tweet_author, parent_tweet_id }: {
           </ul>
           {/* Submit tweet button */}
           <button
-            className="px-4 py-1.5 rounded-full bg-blue-500 text-white"
+            className="px-4 py-1.5 rounded-full bg-blue-500 text-white w-fit ml-auto sm:ml-0"
             onClick={(event) => {
               event.preventDefault();
               CacheNewTweet(authState, text, mediaFiles, cache, mutate, parent_tweet_id)

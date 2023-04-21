@@ -12,8 +12,6 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
   const router = useRouter()
   const { tweet, loading, updateTweet } = useTweetsCache(tweet_id)
 
-  
-
   if (!tweet) {
     return <div>
     </div>
@@ -22,7 +20,7 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
   return (
     <div
       id={`${tweet._id}`}
-      className="flex w-full space-x-2 px-3 pt-2 border-b border-b-gray-200 border-r hover:cursor-pointer border-r-gray-200  hover:bg-gray-50 dark:hover:bg-gray-900 dark:border-b-gray-700 dark:border-r-gray-700"
+      className="flex w-full max-w-full space-x-1 sm:space-x-2 px-1 sm:px-3 pt-2 border-b border-b-gray-200 border-r hover:cursor-pointer border-r-gray-200  hover:bg-gray-50 dark:hover:bg-gray-900 dark:border-b-gray-700 dark:border-r-gray-700"
       onClick={(event: SyntheticEvent) => {
         //@ts-ignore
         if (event.target && typeof event.target.className === 'string' && !event.target.className.includes('tweet-btn') && !event.target.className.includes('user-link')) {
@@ -37,7 +35,7 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
       {
         tweet._id && <AuthorAvatar author_id={tweet.author} />
       }
-      <div className="w-full flex flex-col space-y-3">
+      <div className="w-full pr-3 flex flex-col space-y-1 sm:space-y-3">
         {/* Author Details */}
         <div className="flex items-center space-x-1">
           {
@@ -54,13 +52,13 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
         {/* Media Files if present */}
         {
           tweet.media && tweet.media.length > 0 &&
-          <div className={` my-2 gap-1
-              ${(tweet.media.length > 1) ? 'grid  grid-cols-2 h-96' : ''} 
+          <div className={` my-2 gap-1 
+              ${(tweet.media.length > 1) ? 'grid  grid-cols-2 h-[300px] sm:h-96' : ''} 
               ${(tweet.media.length > 2) ? 'grid-rows-2' : ''} `}>
             {
               tweet.media.map((ele, index) => {
                 return <div className={`w-full h-full rounded-2xl overflow-hidden relative ${(tweet.media?.length === 3 && index === 0) ? 'row-span-2' : ''} `} key={ele.url}>
-                  <Image width={1000} height={1000} alt="image" src={ele.url || ""} className="w-full object-cover h-full max-h-[600px]" />
+                  <Image width={400} height={400} alt="image" src={ele.url || ""} className="w-full object-cover h-full max-h-[375px] sm:max-h-[600px]" />
                 </div>
               })
             }
@@ -68,9 +66,10 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
         }
 
         {/* Footer with button to do some operations */}
+
         <ul className="flex justify-between text-gray-500 dark:text-white">
           <li className="w-full">
-            <button className="w-fit items-center flex justify-start  pr-4 py-2  group hover:text-blue-700 dark:hover:text-blue-200 tweet-btn">
+            <button className="w-fit items-center flex justify-start  pr-2 py-2  group hover:text-blue-700 dark:hover:text-blue-200 tweet-btn">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.0} stroke="currentColor" className="p-1.5 w-7 h-7 text-gray-500 rounded-full group-hover:text-blue-700 group-hover:bg-blue-100 dark:group-hover:text-blue-200 dark:group-hover:bg-blue-900">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.153.671L12 21l2.652-3.978c.26-.39.687-.634 1.153-.67 1.09-.086 2.17-.208 3.238-.365 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
               </svg>
@@ -79,7 +78,7 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
           </li>
           <li className="w-full">
             <button
-              className={`w-fit ${(tweet.have_retweeted) ? 'text-green-500' : ''} items-center flex justify-start  pr-4 py-2  group hover:text-green-700 dark:hover:text-green-200 tweet-btn`}
+              className={`w-fit ${(tweet.have_retweeted) ? 'text-green-500' : ''} items-center flex justify-start  p-2  group hover:text-green-700 dark:hover:text-green-200 tweet-btn`}
               onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                 event.preventDefault();
                 updateTweet('retweeted')
@@ -92,7 +91,7 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
           </li>
           <li className="w-full">
             <button
-              className={`w-fit ${(tweet.have_liked) ? 'text-red-700' : ''} items-center flex justify-start  pr-4 py-2  group hover:text-red-700 dark:hover:text-red-200 tweet-btn`}
+              className={`w-fit ${(tweet.have_liked) ? 'text-red-700' : ''} items-center flex justify-start  p-2  group hover:text-red-700 dark:hover:text-red-200 tweet-btn`}
               onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                 event.preventDefault();
                 updateTweet('liked')
@@ -103,17 +102,17 @@ const FeedTweetComponent = React.memo(({ tweet_id }: {
               <span className="text-blue tweet-btn pl-1">{tweet.num_likes}</span>
             </button>
           </li>
-          <li className="w-full">
-            <button className="w-fit items-center flex justify-start  pr-4 py-2  group hover:text-blue-700 dark:hover:text-blue-200 tweet-btn">
+          <li className="w-full hidden sm:block">
+            <button className="w-fit items-center flex justify-start  p-2  group hover:text-blue-700 dark:hover:text-blue-200 tweet-btn">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.0} stroke="currentColor" className="p-1.5 w-7 h-7 text-gray-500 rounded-full group-hover:text-blue-700 dark:group-hover:text-blue-200 group-hover:bg-blue-100 dark:group-hover:bg-blue-900">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
               </svg>
               <span className="text-blue tweet-btn pl-1">{tweet.num_views}</span>
             </button>
           </li>
-          <li className="w-full">
+          <li className="w-fit sm:w-full">
             <button
-              className="w-fit items-center flex justify-start  pr-4 py-2  group hover:text-blue-700 dark:hover:text-blue-200 tweet-btn"
+              className="w-fit items-center flex justify-start  p-2  group hover:text-blue-700 dark:hover:text-blue-200 tweet-btn"
               onClick={(event) => {
                 // console.log("Here")
 
@@ -143,13 +142,13 @@ export function AuthorAvatar({ author_id }: { author_id: string }) {
 
   }
   return (
-    <Link href={`#`} className="w-[68px] px-2 h-fit  user-link">
+    <Link href={`#`} className="w-[64px] px-2 h-fit  user-link">
       {
         authorDetails && authorDetails.avatar
-        && <Image width={48} height={48} alt="avatar" className="rounded-full bg-black hover:opacity-70 w-12 h-12 user-link" src={authorDetails.avatar} />
+        && <Image width={48} height={48} alt="avatar" className="rounded-full bg-black hover:opacity-70 w-12 min-w-[48px] h-12 user-link" src={authorDetails.avatar} />
       }
       {
-        (!authorDetails || !authorDetails.avatar) && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.0} stroke="currentColor" className="w-10 h-10 user-link">
+        (!authorDetails || !authorDetails.avatar) && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.0} stroke="currentColor" className="w-12 min-w-12 h-12 user-link">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
         </svg>
       }

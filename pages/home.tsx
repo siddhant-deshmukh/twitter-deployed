@@ -102,15 +102,20 @@ export default function Home() {
       rootMargin: '0px',
       threshold: 0.25
     })
+
     if (load_more && load_more.current) observer.observe(load_more.current);
+
+
     return () => {
       if (load_more.current) observer.unobserve(load_more.current);
+
     }
     // console.log('Cache', cache)
 
   }, [observerCallback])
+
   return (
-    <div className='w-full'>
+    <div className='w-full max-w-full pt-12 sm:pt-0'>
       <Head>
         <title>Home / Twitter</title>
       </Head>
@@ -119,14 +124,17 @@ export default function Home() {
           Home
         </span>
       </h1>
-      <h1 className='flex sm:hidden  w-full space-x-10 p-2 sticky top-0 z-50 bg-opacity-80 bg-white dark:bg-black dark:bg-opacity-80'>
-        { 
-          authState &&
-          <TopNavBar authState={authState}/>
-        }
-      </h1>
+      {
+        authState &&
+        <TopNavBar authState={authState} />
+      }
+      {/* <h1 className='flex sm:hidden  w-full space-x-10 p-2 sticky top-0 z-50 bg-opacity-80 bg-white dark:bg-black dark:bg-opacity-80'>
+        
+      </h1> */}
       <div className="w-full">
-        <TweetEditor />
+        <div className='hidden sm:block'>
+          <TweetEditor />
+        </div>
         {/* < FeedTweetEditor mutateOwnTweets={mutateOwnTweets} /> */}
         {/* {
           JSON.stringify(ownTweets)
